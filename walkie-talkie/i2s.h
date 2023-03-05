@@ -11,9 +11,9 @@
 #define CM_SRC_OSCILLATOR 0x01
 
 #define CM_I2SCTL (CLOCK_BASE + 0x98) //BCM manual page 107, CM_GP0CTL
-#define CM_I2SDIV (CLOCK_BASE + 0x9C) //BCM manual page 108, CM_GP0DIV
+#define CM_I2SDIV (CLOCK_BASE + 0x9c) //BCM manual page 108, CM_GP0DIV
 
-#define CM_ENABLE 0x8
+#define CM_ENABLE 0x10
 
 #define I2S_MODE (I2S_BASE + 0x8) //BCM manual page 125
 #define I2S_RXC (I2S_BASE + 0xc)  //BCM manual page 125

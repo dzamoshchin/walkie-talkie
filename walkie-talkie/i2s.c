@@ -8,12 +8,13 @@ void i2s_init() {
     gpio_set_function(DOUT, GPIO_FUNC_ALT0);
     gpio_set_function(LRCL, GPIO_FUNC_ALT0);
 
+
     dev_barrier();
 
     //Step 2: Enable the I2S clock with frequency 4.096Mhz (= 4.0 divisor)
     PUT32(CM_I2SCTL, CM_PASSWORD | CM_SRC_OSCILLATOR);
     PUT32(CM_I2SDIV, CM_PASSWORD | (4 << 12));
-    PUT32(CM_I2SCTL, CM_PASSWORD | CM_SRC_OSCILLATOR | CM_ENABLE);
+    PUT32(CM_I2SCTL, CM_PASSWORD | CM_SRC_OSCILLATOR | (1 << 4));
 
     //Step 3: frame length to 64 clocks (63 + 1) and frame sync to 32
     PUT32(I2S_MODE, (63 << I2S_MODE_FLEN) | (32 << I2S_MODE_FSLEN));
@@ -23,7 +24,8 @@ void i2s_init() {
     
     // Set up RX and disable STBY
     PUT32(I2S_CS, (1 << I2S_CS_STBY) | (1 << I2S_CS_RXCLR) | (1 << I2S_CS_RXON));
-    
+    delay_ms(1000);
+
     // Enable I2S
     PUT32(I2S_CS, GET32(I2S_CS) | (1 << I2S_CS_EN));
 
@@ -42,9 +44,7 @@ void i2s_init() {
 
 inline uint32_t read_sample() {
     // wait until the RX FIFO has data
-    while ((GET32(I2S_CS) & (1 << I2S_CS_RXD)) == 0) {
-        dev_barrier();
-    };
+    while ((GET32(I2S_CS) & (1 << I2S_CS_RXD)) == 0) {};
     // then return sample of FIFO
     return GET32(I2S_FIFO);
 }
@@ -58,10 +58,25 @@ void notmain() {
     gpio_set_off(27);
 
     i2s_init();
-    // uint32_t *msg = kmalloc(1000);
-    // // printk("%b\n", GET32(I2S_CS));
-    while (1) {
-        printk("%b\n", GET32(I2S_FIFO));
-    }
-    printk("%b", read_sample());
+    // while (1) {
+    //     printk("%d\n", gpio_read(DOUT));
+    // }
+    // printk("%x\n", GET32(CM_I2SCTL));
+    // printk("%x\n", GET32(CM_I2SDIV));
+    // printk("%x\n", GET32(I2S_MODE));
+    // printk("%x\n", GET32(I2S_RXC));
+    // while (1) {
+    //     // printk("%b\n", GET32(I2S_CS));
+    //     printk("%b\n", GET32(I2S_FIFO));
+    // }
+
+    // while (1) {
+    // //     printk("%b\n", GET32(I2S_CS));
+        printk("sample:%b\n", read_sample());
+    //     //printk("FIFO:%x\n", GET32(I2S_FIFO));
+    //     PUT32(I2S_CS, GET32(I2S_CS) | (1 << I2S_CS_RXCLR));
+    //     // PUT32(I2S_CS, GET32(I2S_CS) | (1 << I2S_CS_SYNC));
+    //     // while((GET32(I2S_CS) & (1 << I2S_CS_SYNC)) == 0){};
+    // }
+
 }
