@@ -1,14 +1,20 @@
-PROGS := i2s.c
+SUBDIRS=  code
 
-# uncomment if you want it to automatically run.
-RUN=1
+.PHONY: all check clean
+all check clean: $(SUBDIRS)
 
-# define this if you need to give the device for your pi
-BOOTLOADER = my-install
+all: TARGET=all
+check: TARGET=check
+clean: TARGET=clean
 
-#for running on Ari's PI
-TTYUSB = /dev/ttyS9
+# No, you can't do TARGET=$@, or at least I don't know how to.
 
-# GREP_STR := 'HASH:\|ERROR:\|PANIC:\|SUCCESS:\|NRF:'
-EXCLUDE ?= grep -v simple_boot
-include $(CS140E_2023_PATH)/libpi/mk/Makefile.template-v2
+# recursive call to make
+$(SUBDIRS): force
+	$(MAKE) -s -C $@ $(TARGET)
+
+clean:
+	rm -f *~ *.bak
+
+.PHONY: force
+	force :;
