@@ -1,4 +1,5 @@
 #include "nrf-test.h"
+#include "pwm-audio.h"
 
 
 #define SECS 5
@@ -21,7 +22,7 @@ static void read_audio(nrf_t *s, nrf_t *client) {
     unsigned server_addr = s->rxaddr;
     unsigned ntimeout = 0, npackets = 0;
 
-    uint32_t sync = 0;
+//    uint32_t sync = 0;
 
 //    nrf_output("waiting for data sync bit...");
 //    while (sync == 0) {
@@ -33,12 +34,13 @@ static void read_audio(nrf_t *s, nrf_t *client) {
     for(unsigned i = 0; i < N*2; i++) {
 
         // receive on client
-        uint32_t x;
+        uint32_t x = 0;
         if(net_get32(s, &x)) {
             // we aren't doing acks, so can easily lose packets.  [i.e.,
             // it's not actually an error in the code.]
 
             printk("DUMP%x\n", x);
+            write_pwm_stereo((unsigned) x, (unsigned) x);
 
             if(x != i) {
 //                nrf_output("lost/dup packet: received %d (expected=%d)\n", x, i);
@@ -56,6 +58,8 @@ static void read_audio(nrf_t *s, nrf_t *client) {
 
 void notmain(void) {
     unsigned nbytes = 4;
+
+    audio_init();
 
     // nrf-test.h
     nrf_t *s = server_mk_noack(server_addr, nbytes);

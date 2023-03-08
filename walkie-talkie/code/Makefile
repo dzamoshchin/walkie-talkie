@@ -8,8 +8,9 @@
 # TEST_SRC = tests/6-fft-freqout.c
 # TEST_SRC = tests/7-fft-freqviz.c
 # TEST_SRC = tests/8-fft-buckets.c
-PROGS = send_audio.c
-
+#PROGS = send_audio.c
+#PROGS = read_audio.c
+PROGS = output_audio.c
 # OPT_LEVEL = -O3
 
 LIBS += ./libgcc.a
@@ -20,7 +21,7 @@ STAFF_OBJS += $(CS140E_2023_PATH)/libpi/staff-objs/new-spi.o
 # your source, shared by driver code.
 #   if you want to use our staff-hc-sr04.o,
 #   comment SRC out and uncomment STAFF_OBJS
-SRC = i2s.c nrf-hw-support.c nrf-public.c nrf-driver.c
+SRC = i2s.c nrf-hw-support.c nrf-public.c nrf-driver.c pwm-audio.c
 
 # define this if you need to give the device for your pi
 TTYUSB = 
