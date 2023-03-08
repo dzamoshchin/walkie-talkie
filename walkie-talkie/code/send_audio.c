@@ -27,6 +27,9 @@ void send_audio(nrf_t *s, nrf_t *c) {
     unsigned npackets = 0, ntimeout = 0;
     uint32_t exp = 0, got = 0;
 
+    // send sync bit
+    net_put32(c, server_addr, 1);
+
     // printk("in here");
     for (int i = 0; i < N; i++) {
         // int32_t sample = i2s_read_sample();
