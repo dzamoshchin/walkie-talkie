@@ -49,12 +49,15 @@ typedef enum {
 typedef enum {
     I2S_CS_EN = 0,
     I2S_CS_RXON = 1,
+    I2S_CS_TXON = 2,
+    I2S_CS_TXCLR = 3,
     I2S_CS_RXCLR = 4,
     I2S_CS_RXTHR_LB = 7,
     I2S_CS_RXTHR_UB = 8,
     I2S_CS_RXSYNC = 14,
     I2S_CS_RXERR = 16,
     I2S_CS_RXR = 18,
+    I2S_CS_TXD = 19,
     I2S_CS_RXD = 20,
     I2S_CS_RXF = 22,
     I2S_CS_RXSEX = 23,
@@ -87,6 +90,21 @@ typedef enum {
 } i2s_rxc_bits_t;
 
 
+typedef enum {
+    I2S_TXC_CH2WID_LB = 0,     // channel 2 width
+    I2S_TXC_CH2WID_UB = 3,
+    I2S_TXC_CH2POS_LB = 4,     // channel 2 position
+    I2S_TXC_CH2POS_UB = 13,
+    I2S_TXC_CH2EN = 14,         // channel 2 enable
+    I2S_TXC_CH2WEX = 15,        // channel 2 width extension
+    I2S_TXC_CH1WID_LB = 16,     // channel 1 width
+    I2S_TXC_CH1WID_UB = 19,
+    I2S_TXC_CH1POS_LB = 20,     // channel 1 position
+    I2S_TXC_CH1POS_UB = 29,
+    I2S_TXC_CH1EN = 30,         // channel 1 enable
+    I2S_TXC_CH1WEX = 31,        // channel 1 width extension
+} i2s_txc_bits_t;
+
 
 /////////////////////////
 // CLOCK MANAGER STUFF //
@@ -105,6 +123,7 @@ typedef enum {
 
 #define I2S_MODE (I2S_BASE + 0x8) //BCM manual page 125
 #define I2S_RXC (I2S_BASE + 0xc)  //BCM manual page 125
+#define I2S_TXC (I2S_BASE + 0x10)  //BCM manual page 125
 #define I2S_CS (I2S_BASE + 0x0)   //BCM manual page 125
 #define I2S_FIFO (I2S_BASE + 0x4) //BCM manual page 125
 
@@ -141,5 +160,9 @@ _Static_assert(offsetof(cm_regs_t, pcm_div) == 0x9C, "cm_regs_t pcm_div offset")
 // initializes the I2S peripheral
 void i2s_init(void);
 
+void i2s_enable_rx(void);
+void i2s_enable_tx(void);
+
 // reads a sample from the I2S peripheral
 int32_t i2s_read_sample(void);
+void i2s_write_sample(int32_t);

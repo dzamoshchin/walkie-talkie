@@ -8,10 +8,10 @@
 # TEST_SRC = tests/6-fft-freqout.c
 # TEST_SRC = tests/7-fft-freqviz.c
 # TEST_SRC = tests/8-fft-buckets.c
-#PROGS = send_audio.c
-#PROGS = read_audio.c
-PROGS = output_audio.c
-# OPT_LEVEL = -O3
+# PROGS = send_audio.c
+# PROGS = read_audio.c
+# PROGS = output_audio.c
+PROGS = play_audio.c
 
 LIBS += ./libgcc.a
 

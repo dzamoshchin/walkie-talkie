@@ -28,13 +28,17 @@ void send_audio(nrf_t *s, nrf_t *c) {
     uint32_t exp = 0, got = 0;
 
     // send sync bit
-    net_put32(c, server_addr, 1);
+    // net_put32(c, server_addr, 1);
 
-    // printk("in here");
-    for (int i = 0; i < N; i++) {
-        // int32_t sample = i2s_read_sample();
-        net_put32(c, server_addr, i2s_read_sample());
-        // nrf_output("server: sent %d\n", sample);
+    const int button = 27;
+
+    gpio_set_input(button);
+    while(1) { 
+        if(gpio_read(button)) {
+            int32_t sample = i2s_read_sample();
+            net_put32(c, server_addr, sample);
+            nrf_output("server: sent %x\n", sample);
+        }
     }
 }
 
@@ -45,6 +49,8 @@ void notmain(void) {
 
     //init i2c
     i2s_init();
+
+    i2s_enable_rx();
 
     // do the test
     send_audio(s, c);
