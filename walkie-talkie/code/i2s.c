@@ -31,7 +31,7 @@ void i2s_init(void) {
     PUT32(I2S_CS, (1 << I2S_CS_STBY) | (1 << I2S_CS_RXCLR) | (1 << I2S_CS_TXCLR));
 
     // Enable I2S
-    PUT32(I2S_CS, GET32(I2S_CS) | (1 << I2S_CS_EN));
+//    PUT32(I2S_CS, GET32(I2S_CS) | (1 << I2S_CS_EN));
 
     dev_barrier();
 }
@@ -58,7 +58,7 @@ void i2s_enable_rx() {
 //    is2_clear();
     PUT32(I2S_CS, GET32(I2S_CS) & ~(1 << I2S_CS_TXON));
     PUT32(I2S_CS, GET32(I2S_CS) | (1 << I2S_CS_RXON));
-//    is2_enable();
+    is2_enable();
 }
 
 void i2s_enable_tx() {
@@ -66,7 +66,7 @@ void i2s_enable_tx() {
 //    is2_clear();
     PUT32(I2S_CS, GET32(I2S_CS) & ~(1 << I2S_CS_RXON));
     PUT32(I2S_CS, GET32(I2S_CS) | (1 << I2S_CS_TXON));
-//    is2_enable();
+    is2_enable();
 }
 
 int32_t i2s_read_sample(void) {
