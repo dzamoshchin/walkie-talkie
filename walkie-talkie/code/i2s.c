@@ -48,20 +48,25 @@ void is2_enable() {
     dev_barrier();
 }
 
+void i2s_disable() {
+    dev_barrier();
+    PUT32(I2S_CS, GET32(I2S_CS) & ~(1 << I2S_CS_EN));
+}
+
 void i2s_enable_rx() {
     dev_barrier();
-    is2_clear();
+//    is2_clear();
     PUT32(I2S_CS, GET32(I2S_CS) & ~(1 << I2S_CS_TXON));
     PUT32(I2S_CS, GET32(I2S_CS) | (1 << I2S_CS_RXON));
-    is2_enable();
+//    is2_enable();
 }
 
 void i2s_enable_tx() {
     dev_barrier();
-    is2_clear();
+//    is2_clear();
     PUT32(I2S_CS, GET32(I2S_CS) & ~(1 << I2S_CS_RXON));
     PUT32(I2S_CS, GET32(I2S_CS) | (1 << I2S_CS_TXON));
-    is2_enable();
+//    is2_enable();
 }
 
 int32_t i2s_read_sample(void) {
