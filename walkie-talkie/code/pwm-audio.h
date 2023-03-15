@@ -70,8 +70,8 @@ typedef enum {
 
 #define CM_SRC_OSCILLATOR 0x01
 
-#define CM_PWMCTL (CLOCK_BASE + PWM_CLK_CNTL)
-#define CM_PWMDIV (CLOCK_BASE + PWM_CLK_DIV)
+#define CM_PWMCTL (CLOCK_BASE + 0x28)
+#define CM_PWMDIV (CLOCK_BASE + 0x29)
 
 #define CM_ENABLE 0x10
 
@@ -106,13 +106,13 @@ typedef struct {
 _Static_assert(offsetof(cm_regs_t, pcm_ctrl) == 0x98, "cm_regs_t pcm_ctrl offset");
 _Static_assert(offsetof(cm_regs_t, pcm_div) == 0x9C, "cm_regs_t pcm_div offset");
 
-
+#define STA_BERR (1<<8)
 #define STA_GAPO2 0x20
 #define STA_GAPO1 0x10
 #define STA_RERR1 0x8
 #define STA_WERR1 0x4
 #define STA_FULL1 0x1
-#define ERRORMASK (STA_GAPO2 | STA_GAPO1 | STA_RERR1 | STA_WERR1)
+#define ERRORMASK (STA_GAPO2 | STA_GAPO1 | STA_RERR1 | STA_WERR1 | STA_BERR)
 
 
 
