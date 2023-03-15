@@ -74,7 +74,7 @@ int32_t i2s_read_sample(void) {
 
 void i2s_write_sample(int32_t val) {
     dev_barrier();
-    // wait until the RX FIFO has data
+    // wait until the TX FIFO can be written
     while ((GET32(I2S_CS) & (1 << I2S_CS_TXD)) == 0) {};
     // then return sample of FIFO
     return PUT32(I2S_FIFO, val);

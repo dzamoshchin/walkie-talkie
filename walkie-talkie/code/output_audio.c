@@ -40,7 +40,7 @@ static void read_audio(nrf_t *s, nrf_t *client) {
             // it's not actually an error in the code.]
 
             printk("DUMP%x\n", x);
-            write_pwm_stereo((unsigned) x, (unsigned) x);
+            i2s_write_sample((unsigned) x);
 
             if(x != i) {
 //                nrf_output("lost/dup packet: received %d (expected=%d)\n", x, i);
@@ -59,7 +59,10 @@ static void read_audio(nrf_t *s, nrf_t *client) {
 void notmain(void) {
     unsigned nbytes = 4;
 
-    audio_init();
+    // audio_init();
+
+    i2s_init();
+    i2s_enable_tx();
 
     // nrf-test.h
     nrf_t *s = server_mk_noack(server_addr, nbytes);

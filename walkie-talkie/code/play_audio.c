@@ -8,5 +8,8 @@ void notmain(void) {
     i2s_enable_tx();
 
     // do the test
-    i2s_write_sample(0xdeadbeef);
+    while (1) {
+        i2s_write_sample(0xdeadbeef);
+        printk("wrote");
+    }
 }
