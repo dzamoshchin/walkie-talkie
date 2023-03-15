@@ -53,7 +53,7 @@ int write_pwm_stereo(unsigned l, unsigned r) {
     if (!(status & STA_FULL1)) {
         printk("outputting: %d\n", l);
         PUT32(PWM_FIFO, l);  // left channel
-        PUT32(PWM_FIFO, r);  // left channel
+        PUT32(PWM_FIFO, r);  // right channel
         ret = 1;
     }
 
