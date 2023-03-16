@@ -79,6 +79,7 @@ fat32_fs_t fat32_mk(mbr_partition_ent_t *partition) {
 
 // Given cluster_number, get lba.  Helper function.
 static uint32_t cluster_to_lba(fat32_fs_t *f, uint32_t cluster_num) {
+  printk("cluster number is: %d\n", cluster_num);
   assert(cluster_num >= 2);
   // Calculate LBA from cluster number, cluster_begin_lba, and
   // sectors_per_cluster
@@ -322,6 +323,7 @@ static void write_cluster_chain(fat32_fs_t *fs, uint32_t start_cluster, uint8_t 
   uint32_t bytes_written = 0;
   uint32_t prev_cluster = -1;
   while (cur_cluster != LAST_CLUSTER && bytes_written < nbytes) {
+    //printk("t\n");
     pi_sd_write(data, cluster_to_lba(fs, cur_cluster), fs->sectors_per_cluster);
     data += write_inc;
     bytes_written += write_inc;
@@ -347,6 +349,7 @@ static void write_cluster_chain(fat32_fs_t *fs, uint32_t start_cluster, uint8_t 
   // FAT and continue writing the bytes out.  Update the FAT to reflect the new
   // cluster.
   while(bytes_written < nbytes) {
+    //printk("q\n");
     cur_cluster = find_free_cluster(fs, 3);
     pi_sd_write(data, cluster_to_lba(fs, cur_cluster), fs->sectors_per_cluster);
     data += write_inc;
@@ -437,6 +440,7 @@ pi_dirent_t *fat32_create(fat32_fs_t *fs, pi_dirent_t *directory, char *filename
   }
   if (idx == -1) {
     //panic("did not find an empty dirent slot to put new entry");
+    //printk("fuck\n");
     if (i == dir_n - 1) {
       panic("no more space for more files?!?!?!\n");
     }
@@ -543,6 +547,7 @@ int fat32_write(fat32_fs_t *fs, pi_dirent_t *directory, char *filename, pi_file_
   // - write out the directory entry
   // Special case: the file is empty to start with, so we need to update the
   // start cluster in the dirent
+  //printk("hi1\n");
   uint32_t dir_n;
   fat32_dirent_t *cur_dirents = get_dirents(fs, directory->cluster_id, &dir_n);
   int found_idx = find_dirent_with_name(cur_dirents, dir_n, filename);
@@ -550,15 +555,18 @@ int fat32_write(fat32_fs_t *fs, pi_dirent_t *directory, char *filename, pi_file_
     if (trace_p) trace("there is no file named %s, nothing to write to.\n", filename);
     return 0;
   }
-
+  //printk("hi2\n");
   if (cur_dirents[found_idx].file_nbytes == 0) {
+    //printk("hi3\n");
     uint32_t ne_free = find_free_cluster(fs, 3);
     cur_dirents[found_idx].lo_start = ne_free & 0xFFFF;
     cur_dirents[found_idx].hi_start = (ne_free >> 16) & 0xFFFF;
     write_cluster_chain(fs, ne_free, file->data, file->n_data);
   } else {
+    //printk("hi4\n");
     write_cluster_chain(fs, cur_dirents[found_idx].lo_start | cur_dirents[found_idx].hi_start << 16, file->data, file->n_data);
   }
+  //printk("hi5\n");
 
   cur_dirents[found_idx].file_nbytes = file->n_data;
 
