@@ -1,6 +1,6 @@
 # list out the driver program source
 # TEST_SRC = $(wildcard tests/*.c)
-# TEST_SRC = tests/1-i2s-test.c
+PROGS = tests/1-i2s-test.c
 # PROGS = tests/2-i2s-dump.c
 # TEST_SRC = tests/3-i2s-audiovis.c
 # TEST_SRC = tests/4-fft-test.c
@@ -11,7 +11,10 @@
 # PROGS = send_audio.c
 # PROGS = read_audio.c
 # PROGS = output_audio.c
-PROGS = play_audio.c
+# PROGS = play_audio.c
+# PROGS := tests/3-fat32-write.c
+# PROGS += tests/2-fat32-read.c
+PROGS = i2s-write-wav.c
 
 LIBS += ./libgcc.a
 
@@ -23,8 +26,11 @@ STAFF_OBJS += $(CS140E_2023_PATH)/libpi/staff-objs/new-spi.o
 #   comment SRC out and uncomment STAFF_OBJS
 SRC = i2s.c nrf-hw-support.c nrf-public.c nrf-driver.c pwm-audio.c
 
+SRC += fat32.c mbr.c pi-sd.c mbr-helpers.c fat32-helpers.c fat32-lfn-helpers.c external-code/unicode-utf8.c external-code/emmc.c external-code/mbox.c 
+CFLAGS_EXTRA  = -Iexternal-code
+
 # define this if you need to give the device for your pi
-TTYUSB = 
+TTYUSB = /dev/ttyS7
 
 # set RUN = 1 if you want the code to automatically run after building.
 RUN = 1
@@ -32,3 +38,6 @@ RUN = 1
 DEPS = ./Makefile
 COMMON_OBJS := $(SRC:.c=.o)
 include ../../libpi/mk/Makefile.template-v2
+
+clean::
+	rm -f tests/*.list tests/*.o tests/*.elf tests/*~ tests/*.bin tests/*.d
