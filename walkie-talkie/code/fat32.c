@@ -416,7 +416,7 @@ pi_dirent_t *fat32_create(fat32_fs_t *fs, pi_dirent_t *directory, char *filename
   uint32_t dir_n;
   fat32_dirent_t *cur_dirents = get_dirents(fs, directory->cluster_id, &dir_n);
   if (find_dirent_with_name(cur_dirents, dir_n, filename) != -1) {
-    if (trace_p) trace("there is already a directory with name %s\n", filename);
+    if (trace_p) trace("there is already a file with name %s\n", filename);
     return NULL;
   }
 
@@ -451,6 +451,7 @@ pi_dirent_t *fat32_create(fat32_fs_t *fs, pi_dirent_t *directory, char *filename
     idx = i;
   }
 
+
   // Write out the updated directory to the disk
   write_cluster_chain(fs, directory->cluster_id, (uint8_t *) cur_dirents, sizeof(fat32_dirent_t) * dir_n);
 
@@ -480,6 +481,11 @@ int fat32_delete(fat32_fs_t *fs, pi_dirent_t *directory, char *filename) {
   // Free the clusters referenced by this dirent
   uint32_t cur_cluster = cur_dirents[found_idx].lo_start | (cur_dirents[found_idx].hi_start << 16);
   uint32_t prev_cluster;
+
+  if (cur_cluster == 0) {
+    write_cluster_chain(fs, directory->cluster_id, (uint8_t *) cur_dirents, sizeof(fat32_dirent_t) * dir_n);
+    return 1;
+  }
   while (fat32_fat_entry_type(cur_cluster) != LAST_CLUSTER) {
     prev_cluster = cur_cluster;
     cur_cluster = fs->fat[cur_cluster];
@@ -497,9 +503,7 @@ int fat32_truncate(fat32_fs_t *fs, pi_dirent_t *directory, char *filename, unsig
   demand(init_p, "fat32 not initialized!");
   if (trace_p) trace("truncating %s\n", filename);
 
-  if (length == 0) {
-    return fat32_delete(fs, directory, filename);
-  }
+
 
   // Edit the directory entry of the file to list its length as `length` bytes.
   // Modify the cluster chain to either free unused clusters or add new
@@ -513,6 +517,13 @@ int fat32_truncate(fat32_fs_t *fs, pi_dirent_t *directory, char *filename, unsig
     if (trace_p) trace("there is no file named %s, nothing to truncate.\n", filename);
     return 0;
   }
+
+  if (length == 0 && cur_dirents[found_idx].file_nbytes == 0) {
+    return 1;
+  } else if (length == 0 ) {
+    return fat32_delete(fs, directory, filename);
+  }
+
   if (cur_dirents[found_idx].file_nbytes == 0) {
     uint8_t *data = kmalloc(length);
     memset((void*)data, 0, length);
@@ -547,7 +558,6 @@ int fat32_write(fat32_fs_t *fs, pi_dirent_t *directory, char *filename, pi_file_
   // - write out the directory entry
   // Special case: the file is empty to start with, so we need to update the
   // start cluster in the dirent
-  //printk("hi1\n");
   uint32_t dir_n;
   fat32_dirent_t *cur_dirents = get_dirents(fs, directory->cluster_id, &dir_n);
   int found_idx = find_dirent_with_name(cur_dirents, dir_n, filename);
@@ -555,9 +565,7 @@ int fat32_write(fat32_fs_t *fs, pi_dirent_t *directory, char *filename, pi_file_
     if (trace_p) trace("there is no file named %s, nothing to write to.\n", filename);
     return 0;
   }
-  //printk("hi2\n");
   if (cur_dirents[found_idx].file_nbytes == 0) {
-    //printk("hi3\n");
     uint32_t ne_free = find_free_cluster(fs, 3);
     cur_dirents[found_idx].lo_start = ne_free & 0xFFFF;
     cur_dirents[found_idx].hi_start = (ne_free >> 16) & 0xFFFF;
@@ -565,10 +573,8 @@ int fat32_write(fat32_fs_t *fs, pi_dirent_t *directory, char *filename, pi_file_
     write_fat_to_disk(fs);
     write_cluster_chain(fs, ne_free, file->data, file->n_data);
   } else {
-    //printk("hi4\n");
     write_cluster_chain(fs, cur_dirents[found_idx].lo_start | cur_dirents[found_idx].hi_start << 16, file->data, file->n_data);
   }
-  //printk("hi5\n");
 
   cur_dirents[found_idx].file_nbytes = file->n_data;
 
