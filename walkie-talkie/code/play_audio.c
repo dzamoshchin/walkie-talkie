@@ -2,14 +2,7 @@
 #include "i2s.h"
 
 void notmain(void) {
-    //init i2c
     i2s_init();
-
     i2s_enable_tx();
-
-    // do the test
-    while (1) {
-        i2s_write_sample(0xdeadbeef);
-        printk("wrote");
-    }
+    printk("%b\n", I2S_CS);
 }
