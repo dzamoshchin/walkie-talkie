@@ -79,7 +79,7 @@ fat32_fs_t fat32_mk(mbr_partition_ent_t *partition) {
 
 // Given cluster_number, get lba.  Helper function.
 static uint32_t cluster_to_lba(fat32_fs_t *f, uint32_t cluster_num) {
-  printk("cluster number is: %d\n", cluster_num);
+  // printk("cluster number is: %d\n", cluster_num);
   assert(cluster_num >= 2);
   // Calculate LBA from cluster number, cluster_begin_lba, and
   // sectors_per_cluster
@@ -561,6 +561,8 @@ int fat32_write(fat32_fs_t *fs, pi_dirent_t *directory, char *filename, pi_file_
     uint32_t ne_free = find_free_cluster(fs, 3);
     cur_dirents[found_idx].lo_start = ne_free & 0xFFFF;
     cur_dirents[found_idx].hi_start = (ne_free >> 16) & 0xFFFF;
+    fs->fat[ne_free] = LAST_CLUSTER;
+    write_fat_to_disk(fs);
     write_cluster_chain(fs, ne_free, file->data, file->n_data);
   } else {
     //printk("hi4\n");
