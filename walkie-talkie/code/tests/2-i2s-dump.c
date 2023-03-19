@@ -4,18 +4,18 @@
  * usage: make 2>&1 | grep DUMP | tr -d DUMP > ../py/dump.txt
  */
 #include "rpi.h"
-#include "i2s.h"
+#include "i2s/i2s.h"
 
 #define SECS 5
 #define SAMPLE_RATE 44100
 #define N (SAMPLE_RATE * SECS)
 
 void notmain(void) {
-    enable_cache(); 
 
     int32_t *buf = (int32_t *)kmalloc(N * sizeof(int32_t));
 
     i2s_init();
+    i2s_enable_rx();
 
     unsigned start = timer_get_usec();
     for (int i = 0; i < N; i++) {
