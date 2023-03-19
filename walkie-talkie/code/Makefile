@@ -1,14 +1,14 @@
 # list out the driver program source
 # TEST_SRC = $(wildcard tests/*.c)
-PROGS = tests/1-i2s-test.c
-# PROGS = tests/2-i2s-dump.c
+# PROGS = tests/1-i2s-test.c
+PROGS = tests/2-i2s-dump.c
 # TEST_SRC = tests/3-i2s-audiovis.c
 # TEST_SRC = tests/4-fft-test.c
 # TEST_SRC = tests/5-fft-time.c
 # TEST_SRC = tests/6-fft-freqout.c
 # TEST_SRC = tests/7-fft-freqviz.c
 # TEST_SRC = tests/8-fft-buckets.c
-PROGS = send_audio.c
+# PROGS = send_audio.c
 # PROGS = read_audio.c
 # PROGS = output_audio.c
 # PROGS = play_audio.c
