@@ -1,4 +1,4 @@
-#include "nrf-test.h"
+#include "nrf/nrf-test.h"
 
 
 #define SECS 5

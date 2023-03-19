@@ -1,5 +1,5 @@
 #include "rpi.h"
-#include "i2s.h"
+#include "i2s/i2s.h"
 
 void notmain(void) {
     i2s_init();

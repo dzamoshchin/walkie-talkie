@@ -1,7 +1,7 @@
 # list out the driver program source
 # TEST_SRC = $(wildcard tests/*.c)
-PROGS = tests/1-i2s-test.c
-# PROGS = tests/2-i2s-dump.c
+# PROGS = tests/1-i2s-test.c
+PROGS = tests/2-i2s-dump.c
 # TEST_SRC = tests/3-i2s-audiovis.c
 # TEST_SRC = tests/4-fft-test.c
 # TEST_SRC = tests/5-fft-time.c
@@ -14,7 +14,7 @@ PROGS = tests/1-i2s-test.c
 # PROGS = play_audio.c
 # PROGS := tests/3-fat32-write.c
 # PROGS += tests/2-fat32-read.c
-PROGS = i2s-write-wav.c
+# PROGS = i2s-write-wav.c
 
 LIBS += ./libgcc.a
 
@@ -24,13 +24,13 @@ STAFF_OBJS += $(CS140E_2023_PATH)/libpi/staff-objs/new-spi.o
 # your source, shared by driver code.
 #   if you want to use our staff-hc-sr04.o,
 #   comment SRC out and uncomment STAFF_OBJS
-SRC = i2s.c nrf-hw-support.c nrf-public.c nrf-driver.c pwm-audio.c
+SRC = i2s/i2s.c nrf/nrf-hw-support.c nrf/nrf-public.c nrf/nrf-driver.c pwm/pwm-audio.c
 
-SRC += fat32.c mbr.c pi-sd.c mbr-helpers.c fat32-helpers.c fat32-lfn-helpers.c external-code/unicode-utf8.c external-code/emmc.c external-code/mbox.c 
-CFLAGS_EXTRA  = -Iexternal-code
+SRC += fat32/fat32.c fat32/mbr.c fat32/pi-sd.c fat32/mbr-helpers.c fat32/fat32-helpers.c fat32/fat32-lfn-helpers.c fat32/external-code/unicode-utf8.c fat32/external-code/emmc.c fat32/external-code/mbox.c 
+CFLAGS_EXTRA  = -I fat32/external-code
 
 # define this if you need to give the device for your pi
-TTYUSB = /dev/ttyS7
+# TTYUSB = /dev/ttyS7
 
 # set RUN = 1 if you want the code to automatically run after building.
 RUN = 1
