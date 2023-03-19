@@ -1,6 +1,6 @@
 #include "rpi.h"
-#include "i2s.h"
-#include "nrf-test.h"
+#include "i2s/i2s.h"
+#include "nrf/nrf-test.h"
 
 #define SECS 5
 #define SAMPLE_RATE 44100
