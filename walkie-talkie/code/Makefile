@@ -24,9 +24,9 @@ STAFF_OBJS += $(CS140E_2023_PATH)/libpi/staff-objs/new-spi.o
 # your source, shared by driver code.
 #   if you want to use our staff-hc-sr04.o,
 #   comment SRC out and uncomment STAFF_OBJS
-SRC = i2s.c nrf-hw-support.c nrf-public.c nrf-driver.c pwm-audio.c
+SRC = i2s.c nrf/nrf-hw-support.c nrf/nrf-public.c nrf/nrf-driver.cpwm/ pwm-audio.c
 
-SRC += fat32.c mbr.c pi-sd.c mbr-helpers.c fat32-helpers.c fat32-lfn-helpers.c external-code/unicode-utf8.c external-code/emmc.c external-code/mbox.c 
+SRC += fat32/fat32.c fat32/mbr.c fat32/pi-sd.c fat32/mbr-helpers.c fat32/fat32-helpers.c fat32/fat32-lfn-helpers.c fat32/external-code/unicode-utf8.c fat32/external-code/emmc.c fat32/external-code/mbox.c 
 CFLAGS_EXTRA  = -Iexternal-code
 
 # define this if you need to give the device for your pi
