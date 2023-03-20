@@ -56,6 +56,7 @@ typedef enum {
     I2S_CS_RXTHR_UB = 8,
     I2S_CS_RXSYNC = 14,
     I2S_CS_RXERR = 16,
+    I2S_CS_TXW = 17,
     I2S_CS_RXR = 18,
     I2S_CS_TXD = 19,
     I2S_CS_RXD = 20,

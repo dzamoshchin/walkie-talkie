@@ -4,5 +4,10 @@
 void notmain(void) {
     i2s_init();
     i2s_enable_tx();
-    printk("%b\n", I2S_CS);
+
+    // do the test
+    while (1) {
+        i2s_write_sample(0xdeadbeef);
+        printk("wrote");
+    }
 }
