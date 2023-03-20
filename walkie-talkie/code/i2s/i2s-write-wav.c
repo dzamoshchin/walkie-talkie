@@ -1,6 +1,6 @@
 #include "rpi.h"
 #include "i2s.h"
-#include "fat32.h"
+#include "../fat32/fat32.h"
 #include "wav.h"
 
 #define SECS 1
@@ -45,8 +45,8 @@ void notmain(void) {
     assert(fat32_create(&fs, &root, test_name, 0));
 
     INIT_WAV_HEADER(w);
-    w.overall_size = num_bytes;
-    w.data_size = N * sizeof(int32_t);
+    w.overall_size = num_bytes - 8;
+    w.data_size = (N * w.channels * w.bits_per_sample) / 8;
 
     memcpy(buf, &w, sizeof(wav_header_t));
 
@@ -55,8 +55,19 @@ void notmain(void) {
         .n_data = num_bytes,
         .n_alloc = num_bytes,
     };
+    // for (int i = 0; i < 11; i++) {
+    //     printk("%x\n", *(buf + i));
+    // }
 
     assert(fat32_write(&fs, &root, test_name, &test));
+    pi_file_t *read_file_after = fat32_read(&fs, &root, test_name);
+    assert(test.n_data == read_file_after->n_data);
+    printk("%d", test.n_data);
+    for (int i = 0; i < read_file_after->n_data; i++) {
+        //printk("%d\n", i);
+        assert(read_file_after->data[i] == test.data[i]);
+    }
+    printk("passed quivalence");
     printk("Check your SD card for a file called 'TEST.WAV'\n");
 
     printk("PASS: %s\n", __FILE__);
