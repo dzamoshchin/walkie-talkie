@@ -39,7 +39,7 @@ RUN = 1
 
 DEPS = ./Makefile
 COMMON_OBJS := $(SRC:.c=.o)
-include ../../libpi/mk/Makefile.template-v2
+include $(WALKIE_PATH)/libpi/mk/Makefile.template-v2
 
 clean::
 	rm -f tests/*.list tests/*.o tests/*.elf tests/*~ tests/*.bin tests/*.d
