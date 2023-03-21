@@ -15,7 +15,7 @@ void notmain(void) {
     int32_t *buf = (int32_t *)kmalloc(N * sizeof(int32_t));
 
     i2s_init();
-    i2s_enable_rx();
+    // i2s_enable_rx();
 
     unsigned start = timer_get_usec();
     for (int i = 0; i < N; i++) {
