@@ -1,5 +1,5 @@
-#include "gpio.h"
-#include "pwm.h"
+#include "rpi.h"
+#include "pwm/pwm.h"
 
 #define FREQ (19200000/16) // clock is 19.2MHz, and this divider gives us
                               // a pretty good range for musical notes
@@ -7,7 +7,6 @@
 #define RIGHT_HZ 440 
 
 void notmain(void) {
-    gpio_init();
     gpio_set_function(40, GPIO_FUNC_ALT0); // Stereo left
     gpio_set_function(45, GPIO_FUNC_ALT0); // Stereo right
 

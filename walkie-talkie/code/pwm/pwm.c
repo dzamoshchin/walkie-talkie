@@ -1,6 +1,6 @@
-#include "memory.h"
-#include "timer.h"
-#include "gpio.h"
+// #include "memory.h"
+// #include "timer.h"
+#include "rpi.h"
 #include "pwm.h"
 
 // Nominal clock frequencies
