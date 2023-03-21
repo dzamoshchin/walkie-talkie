@@ -8,7 +8,7 @@ void i2s_init(void) {
 
     //Step 1: set the BCLK, DIN and LRCL lines to ALT0
     gpio_set_function(I2S_PIN_CLK, GPIO_FUNC_ALT0);
-//    gpio_set_function(I2S_PIN_DIN, GPIO_FUNC_ALT0);
+    gpio_set_function(I2S_PIN_DIN, GPIO_FUNC_ALT0);
     gpio_set_function(I2S_PIN_FS, GPIO_FUNC_ALT0);
     gpio_set_function(I2S_PIN_DOUT, GPIO_FUNC_ALT0);
 
@@ -30,6 +30,7 @@ void i2s_init(void) {
     
     // clear TX and RX and disable STBY
     PUT32(I2S_CS, (1 << I2S_CS_STBY) | (1 << I2S_CS_RXCLR) | (1 << I2S_CS_TXCLR));
+    delay_cycles(4);
 
 //    PUT32(I2S_CS, GET32(I2S_CS) | (0b01 << 5));  // TXTHR to less than full
 
