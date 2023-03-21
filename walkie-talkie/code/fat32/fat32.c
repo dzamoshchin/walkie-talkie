@@ -330,6 +330,7 @@ static void write_cluster_chain(fat32_fs_t *fs, uint32_t start_cluster, uint8_t 
     prev_cluster = cur_cluster;
     cur_cluster = fs->fat[cur_cluster];
   }
+  printk("bytes written: %d; num_bytes: %d", bytes_written, num_bytes);
 
   // If we run out of bytes to write before using all the clusters, mark
   // the final cluster as "LAST_CLUSTER" in the FAT, then free all the clusters
