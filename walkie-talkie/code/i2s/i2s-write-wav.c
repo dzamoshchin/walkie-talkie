@@ -3,7 +3,7 @@
 #include "../fat32/fat32.h"
 #include "wav.h"
 
-#define SECS 1
+#define SECS 5
 #define SAMPLE_RATE 44100
 #define N (SAMPLE_RATE * SECS)
 
@@ -21,7 +21,7 @@ void notmain(void) {
     int32_t *buf = (int32_t *)kmalloc(num_bytes);
 
     i2s_init();
-    i2s_enable_rx();
+    // i2s_enable_rx();
 
     unsigned start = timer_get_usec();
     int offset = sizeof(wav_header_t) / sizeof(int32_t);
@@ -52,7 +52,7 @@ void notmain(void) {
     pi_dirent_t root = fat32_get_root(&fs);
 
     printk("Creating test.wav\n");
-    char *test_name = "TEST.TXT";
+    char *test_name = "ARN.WAV";
     fat32_delete(&fs, &root, test_name);
     assert(fat32_create(&fs, &root, test_name, 0));
 
@@ -64,8 +64,8 @@ void notmain(void) {
 
     pi_file_t test = (pi_file_t) {
         .data = (char *)buf,
-        .n_data = 50000,
-        .n_alloc = 50000,
+        .n_data = num_bytes,
+        .n_alloc = num_bytes,
     };
     // char *te = (char *)buf;
     // for (int i = 0; i < 100; i++) {
