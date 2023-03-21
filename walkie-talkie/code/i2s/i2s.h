@@ -60,6 +60,7 @@ typedef enum {
     I2S_CS_RXR = 18,
     I2S_CS_TXD = 19,
     I2S_CS_RXD = 20,
+    I2S_CS_TXE = 21,
     I2S_CS_RXF = 22,
     I2S_CS_RXSEX = 23,
     I2S_CS_SYNC = 24,

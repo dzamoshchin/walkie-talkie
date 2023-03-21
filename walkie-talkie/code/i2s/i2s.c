@@ -83,8 +83,8 @@ int32_t i2s_read_sample(void) {
 }
 
 void i2s_transmit() {
-    i2s_enable_tx();
-    while ((GET32(I2S_CS) & (1 << I2S_CS_TXW)) == 0) {
+    while ((GET32(I2S_CS) & (1 << I2S_CS_TXE)) == 0) {
+        i2s_enable_tx();
         printk("Transmitting tx fifo....");
     }
     printk("\nTransmit complete, disabling TX...\n");
