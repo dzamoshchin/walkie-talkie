@@ -330,6 +330,7 @@ static void write_cluster_chain(fat32_fs_t *fs, uint32_t start_cluster, uint8_t 
     prev_cluster = cur_cluster;
     cur_cluster = fs->fat[cur_cluster];
   }
+  printk("bytes written: %d; num_bytes: %d", bytes_written, nbytes);
 
   // If we run out of bytes to write before using all the clusters, mark
   // the final cluster as "LAST_CLUSTER" in the FAT, then free all the clusters
@@ -351,11 +352,13 @@ static void write_cluster_chain(fat32_fs_t *fs, uint32_t start_cluster, uint8_t 
   while(bytes_written < nbytes) {
     //printk("q\n");
     cur_cluster = find_free_cluster(fs, 3);
+    printk("curr_cluster%d\n", cur_cluster);
     pi_sd_write(data, cluster_to_lba(fs, cur_cluster), fs->sectors_per_cluster);
     data += write_inc;
     bytes_written += write_inc;
     fs->fat[prev_cluster] = cur_cluster;
     fs->fat[cur_cluster] = LAST_CLUSTER;
+    prev_cluster = cur_cluster;
   }
 
 

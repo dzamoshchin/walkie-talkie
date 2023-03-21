@@ -10,7 +10,6 @@ void i2s_init(void) {
     gpio_set_function(I2S_PIN_CLK, GPIO_FUNC_ALT0);
     gpio_set_function(I2S_PIN_DIN, GPIO_FUNC_ALT0);
     gpio_set_function(I2S_PIN_FS, GPIO_FUNC_ALT0);
-    gpio_set_function(I2S_PIN_DOUT, GPIO_FUNC_ALT0);
 
     dev_barrier();
 
