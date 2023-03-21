@@ -21,7 +21,7 @@ void notmain(void) {
     int32_t *buf = (int32_t *)kmalloc(num_bytes);
 
     i2s_init();
-    // i2s_enable_rx();
+     i2s_enable_rx();
 
     unsigned start = timer_get_usec();
     int offset = sizeof(wav_header_t) / sizeof(int32_t);
