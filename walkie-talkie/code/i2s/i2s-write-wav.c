@@ -22,6 +22,7 @@ void notmain(void) {
     int32_t *buf = (int32_t *)kmalloc(num_bytes);
 
     i2s_init();
+    i2s_enable_rx();
     uart_init();
     kmalloc_init();
     pi_sd_init();
@@ -84,7 +85,6 @@ void notmain(void) {
             unsigned start = timer_get_usec();
             while(1) {
                 buf[loc + offset] = i2s_read_sample();
-                printk("read sample\n");
                 loc++;
                 if (!gpio_read(button)) {
                     printk("not read\n");
@@ -114,7 +114,8 @@ void notmain(void) {
                 memcpy(buf, &w, sizeof(wav_header_t));
                 loc = 0;
             } else {
-                uint32_t num_bytes = (SAMPLE_RATE * (end - start))/1000000;
+                uint32_t num_bytes = ((end - start)/10000) * SAMPLE_RATE / 100;
+                printk("num bytes: %d\n", num_bytes);
                 pi_file_t test = (pi_file_t) {
                     .data = (char *)buf,
                     .n_data = num_bytes,
