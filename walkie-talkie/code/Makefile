@@ -16,7 +16,8 @@
 # PROGS += tests/2-fat32-read.c
 # PROGS = i2s-write-wav.c
 # PROGS = double_tap.c
-PROGS = play.c
+# PROGS = play.c
+PROGS = play_test.c
 
 LIBS += ./libgcc.a
 

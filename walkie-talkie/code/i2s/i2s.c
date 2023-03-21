@@ -24,7 +24,7 @@ void i2s_init(void) {
     PUT32(I2S_MODE, (63 << I2S_MODE_FLEN_LB) | (32 << I2S_MODE_FSLEN_LB));
     
     // Channel 1 enabled with width 32 and offset 0
-    PUT32(I2S_RXC, (1 << I2S_RXC_CH1WEX) | (8 << I2S_RXC_CH1WID_LB) | (1 << I2S_RXC_CH1EN));
+    PUT32(I2S_RXC, (8 << I2S_RXC_CH1WID_LB) | (1 << I2S_RXC_CH1EN));
     PUT32(I2S_TXC, (1 << I2S_TXC_CH1WEX) | (8 << I2S_TXC_CH1WID_LB) | (1 << I2S_TXC_CH1EN));
     
     // clear TX and RX and disable STBY
