@@ -29,10 +29,9 @@ void notmain(void) {
         buf[i + offset] = i2s_read_sample();
     }
     unsigned end = timer_get_usec();
-
-    for (int i = 0; i < N; i++){
-        buf[i + offset] = big_to_little_endian(buf[i + offset]);
-    }
+    // for (int i = 0; i < N; i++){
+    //     buf[i + offset] = big_to_little_endian(buf[i + offset]);
+    // }
 
     uart_init();
     kmalloc_init();
@@ -53,7 +52,7 @@ void notmain(void) {
     pi_dirent_t root = fat32_get_root(&fs);
 
     printk("Creating test.wav\n");
-    char *test_name = "TEST.WAV";
+    char *test_name = "TEST.TXT";
     fat32_delete(&fs, &root, test_name);
     assert(fat32_create(&fs, &root, test_name, 0));
 
@@ -65,8 +64,8 @@ void notmain(void) {
 
     pi_file_t test = (pi_file_t) {
         .data = (char *)buf,
-        .n_data = num_bytes,
-        .n_alloc = num_bytes,
+        .n_data = 50000,
+        .n_alloc = 50000,
     };
     // char *te = (char *)buf;
     // for (int i = 0; i < 100; i++) {
