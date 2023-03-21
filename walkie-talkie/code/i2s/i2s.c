@@ -95,10 +95,27 @@ void i2s_transmit() {
 void i2s_write_sample(int32_t val) {
     dev_barrier();
 
-    if ((GET32(I2S_CS) & (1 << I2S_CS_TXD)) == 0) {
-        printk("FIFO is full, queuing transmit...\n");
+    while ((GET32(I2S_CS) & (1 << I2S_CS_TXD)) == 0) {
+        printk("FIFO is full, queue transmit...\n");
         i2s_transmit();
     }
-    // then return sample of FIFO
-    return PUT32(I2S_FIFO, val);
+    // then write sample of FIFO
+    PUT32(I2S_FIFO, val);
+}
+
+void print_csreg() {
+    for (int i = 0; i < 26; i++) {
+        printk("| %d", i);
+        if (i / 10  == 0) {
+            printk(" ");
+        }
+    }
+    printk("\n");
+
+    uint32_t csreg = GET32(I2S_CS);
+    for (int i = 0; i < 26; i++) {
+        printk("| %d ", (csreg & 0b1));
+        csreg = csreg >> 1;
+    }
+    printk("\n");
 }

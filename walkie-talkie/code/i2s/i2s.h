@@ -167,3 +167,5 @@ void i2s_enable_tx(void);
 // reads a sample from the I2S peripheral
 int32_t i2s_read_sample(void);
 void i2s_write_sample(int32_t);
+
+void print_csreg(void);
