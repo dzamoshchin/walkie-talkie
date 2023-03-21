@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "nrf/nrf-test.h"
 #include "rpi.h"
 #include "pwm/pwm.h"
@@ -18,6 +19,21 @@ static int net_get32(nrf_t *nic, uint32_t *out) {
     int ret = nrf_read_exact_timeout(nic, out, 4, timeout_usec);
     if (ret != 4) return 0;
     return 1;
+}
+
+int16_t swap_int16( int16_t val )
+{
+    return (val << 8) | ((val >> 8) & 0xFF);
+}
+
+uint16_t swap_uint16( uint16_t val )
+{
+    return (val << 8) | (val >> 8 );
+}
+
+uint32_t abs(int v) {
+    int const mask = v >> (sizeof(int) * 8 - 1);
+    return (v + mask) ^ mask;
 }
 
 // for simplicity the code is hardwired for 4 byte packets (the size
@@ -44,10 +60,16 @@ static void read_audio(nrf_t *s, nrf_t *client) {
             // we aren't doing acks, so can easily lose packets.  [i.e.,
             // it's not actually an error in the code.]
 
-            printk("DUMP%x\n", x);
+            printk("DUMP: %u\n", x);
             int status = pwm_get_status();
             if(!(status & PWM_FULL1)) {
-                pwm_write(x>>RIGHTSHIFT);
+
+//                unsigned wave = swap_int16(x) - INT16_MIN;
+                unsigned wave = abs((int)x - 0xFFFF);
+                uint8_t pcm = wave >> 8;
+                printk("pcm: %x\n", pcm);
+                pwm_write(pcm); // channel 0
+                pwm_write(pcm); // channel 1
             }
 
             if(x != i) {
@@ -64,30 +86,6 @@ static void read_audio(nrf_t *s, nrf_t *client) {
         npackets, client->tot_lost, ntimeout, ntimeout);
 }
 
-void audio_init() {
-    gpio_set_function(40, GPIO_FUNC_ALT0);
-    gpio_set_function(45, GPIO_FUNC_ALT0);
-    delay_ms(DELAY);
-
-    pwm_init();
-
-    pwm_set_clock( 19200000/CLOCK_DIVISOR ); // 9600000 Hz
-    delay_ms(DELAY);
-
-    pwm_set_mode( 0, PWM_SIGMADELTA );
-    pwm_set_mode( 1, PWM_SIGMADELTA );
-
-    pwm_set_fifo(0, 1);
-    pwm_set_fifo(1, 1);
-
-    pwm_enable(0);
-    pwm_enable(1);
-
-    // pwm range is 1024 cycles
-    pwm_set_range(0, CYCLES);
-    pwm_set_range(1, CYCLES);
-    delay_ms(2);
-}
 
 void notmain(void) {
     unsigned nbytes = 4;
@@ -96,7 +94,7 @@ void notmain(void) {
     nrf_t *s = server_mk_noack(server_addr, nbytes);
     nrf_t *c = client_mk_noack(client_addr, nbytes);
 
-    audio_init();
+    audio_init(SAMPLE_RATE);
 
     // do the test
     read_audio(s, c);

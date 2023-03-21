@@ -14,6 +14,8 @@
  */
 void pwm_init(void);
 
+void audio_init(int sample_rate);
+
 /*
  * Set the PWM clock frequency.
  *

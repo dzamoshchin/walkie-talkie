@@ -60,6 +60,35 @@ void pwm_init(void)
     //pwm_set_fifo( 1, 0 );
 }
 
+void audio_init(int sample_rate) {
+    gpio_set_function(40, GPIO_FUNC_ALT0);
+    gpio_set_function(45, GPIO_FUNC_ALT0);
+    delay_ms(2);
+
+    pwm_init();
+
+//    pwm_set_clock( 19200000 / CLOCK_DIVISOR ); // 9600000 Hz
+
+    int clock_rate = 19200000 / 2; // 9600000 Hz
+    int range = clock_rate / sample_rate;
+    pwm_set_clock( clock_rate);
+    delay_ms(2);
+
+    pwm_set_mode( 0, PWM_SIGMADELTA );
+    pwm_set_mode( 1, PWM_SIGMADELTA );
+
+    pwm_set_fifo(0, 1);
+    pwm_set_fifo(1, 1);
+
+    pwm_enable(0);
+    pwm_enable(1);
+
+    // pwm range is 1024 cycles
+    pwm_set_range(0, range);
+    pwm_set_range(1, range);
+    delay_ms(2);
+}
+
 /*
  * pwm frequency in Hz = 19 200 000 Hz / pwmClock / pwmRange
  * pwmClock is really a divider (e.g., if we want a divider of 16, we
