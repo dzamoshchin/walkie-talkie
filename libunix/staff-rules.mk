@@ -19,7 +19,7 @@ TARGET := libunix.a
 BUILD_DIR ?= ./objs
 
 # if you have a space it breaks everything.
-LU := $(CS140E_2023_PATH)/libunix
+LU := $(WALKIE_PATH)/libunix
 CFLAGS += -DLIB_UNUX -I$(LU)
 
 # note: if tests have the same name, you'll get a collision.
