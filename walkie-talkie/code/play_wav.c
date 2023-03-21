@@ -1,10 +1,9 @@
 #include "rpi.h"
-#include "pwm/pwm.h"
-// #include "printf.h"
-// #include "timer.h"
-// #include "sin8.h"
-#include "sound2.h"
-//#include "sound3.h"
+#include "pwm.h"
+
+// #include "samples/sin8.h"
+// #include "samples/sound2.h"
+#include "samples/sound3.h"
 
 struct wav_format {
    uint32_t description; // should be 'RIFF'
@@ -23,7 +22,7 @@ struct wav_format {
 };
 
 
-void main ()
+void notmain ()
 {
     pwm_init();
     audio_init(sample_freq);
@@ -31,9 +30,21 @@ void main ()
     while (1) {
         printk("starting play\n");
         if (bits_per_sample == 8) {
-            audio_write_u8((uint8_t *)wav_data, sizeof(wav_data), repeat);
+            while (1) {
+                for (unsigned int sample = 0; sample < sizeof(wav_data); sample++) {
+                    unsigned status = pwm_get_status();
+                    while (status & PWM_FULL1) {
+                        status = pwm_get_status();
+                    }
+                    uint8_t pcm = wav_data[sample];
+                    // mono
+                    pwm_write( pcm ); // output to channel 0
+                    pwm_write( pcm ); // output to channel 1
+                }
+                if (!repeat) break;
+            }
         } else {
-            audio_write_i16((int16_t *)wav_data, sizeof(wav_data), repeat);
+            printk("16 bit not implemented\n");
         }
         printk("done playing\n");
         delay_ms(1000);

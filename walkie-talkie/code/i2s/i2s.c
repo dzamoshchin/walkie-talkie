@@ -1,8 +1,10 @@
 #include "i2s.h"
 
-#define addr(x) ((uint32_t)&(x))
+void i2s_init() {
+    i2s_init_at_rate(32);
+}
 
-void i2s_init(void) {
+void i2s_init_at_rate(int bit_rate) {
     // we should have a dev barrier in case we changed devices
     dev_barrier();
 
@@ -24,14 +26,20 @@ void i2s_init(void) {
     PUT32(I2S_MODE, (63 << I2S_MODE_FLEN_LB) | (32 << I2S_MODE_FSLEN_LB));
     
     // Channel 1 enabled with width 32 and offset 0
-    PUT32(I2S_RXC, (8 << I2S_RXC_CH1WID_LB) | (1 << I2S_RXC_CH1EN));
+    if (bit_rate == 8) {
+        PUT32(I2S_RXC, (1 << I2S_RXC_CH1EN));
+    } else if (bit_rate == 16) {
+        PUT32(I2S_RXC, (8 << I2S_RXC_CH1WID_LB) | (1 << I2S_RXC_CH1EN));
+    } else if (bit_rate == 32) {
+        PUT32(I2S_RXC, (1 << I2S_RXC_CH1WEX) | (8 << I2S_RXC_CH1WID_LB) | (1 << I2S_RXC_CH1EN));
+    }
     PUT32(I2S_TXC, (1 << I2S_TXC_CH1WEX) | (8 << I2S_TXC_CH1WID_LB) | (1 << I2S_TXC_CH1EN));
     
     // clear TX and RX and disable STBY
     PUT32(I2S_CS, (1 << I2S_CS_STBY) | (1 << I2S_CS_RXCLR) | (1 << I2S_CS_TXCLR));
     delay_cycles(4);
 
-//    PUT32(I2S_CS, GET32(I2S_CS) | (0b01 << 5));  // TXTHR to less than full
+    //    PUT32(I2S_CS, GET32(I2S_CS) | (0b01 << 5));  // TXTHR to less than full
 
     // Enable I2S
     PUT32(I2S_CS, GET32(I2S_CS) | (1 << I2S_CS_EN));

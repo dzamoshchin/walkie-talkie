@@ -161,6 +161,7 @@ _Static_assert(offsetof(cm_regs_t, pcm_div) == 0x9C, "cm_regs_t pcm_div offset")
 
 // initializes the I2S peripheral
 void i2s_init(void);
+void i2s_init_at_rate(int);
 
 void i2s_enable_rx(void);
 void i2s_enable_tx(void);
