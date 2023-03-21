@@ -6,6 +6,7 @@
 #define SECS 5
 #define SAMPLE_RATE 44100
 #define N (SAMPLE_RATE * SECS)
+#define DOUBLE_TAP_THRESHOLD 400000
 
 int32_t big_to_little_endian(int32_t num)
 {
@@ -21,18 +22,6 @@ void notmain(void) {
     int32_t *buf = (int32_t *)kmalloc(num_bytes);
 
     i2s_init();
-    i2s_enable_rx();
-
-    unsigned start = timer_get_usec();
-    int offset = sizeof(wav_header_t) / sizeof(int32_t);
-    for (int i = 0; i < N; i++) {
-        buf[i + offset] = i2s_read_sample();
-    }
-    unsigned end = timer_get_usec();
-    // for (int i = 0; i < N; i++){
-    //     buf[i + offset] = big_to_little_endian(buf[i + offset]);
-    // }
-
     uart_init();
     kmalloc_init();
     pi_sd_init();
@@ -51,8 +40,35 @@ void notmain(void) {
     printk("Loading the root directory.\n");
     pi_dirent_t root = fat32_get_root(&fs);
 
-    printk("Creating test.wav\n");
-    char *test_name = "ARN.WAV";
+    // unsigned start = timer_get_usec();
+    // int offset = sizeof(wav_header_t) / sizeof(int32_t);
+    // for (int i = 0; i < N; i++) {
+    //     buf[i + offset] = i2s_read_sample();
+    // }
+    // unsigned end = timer_get_usec();
+
+    //old endian code that is useless
+    // for (int i = 0; i < N; i++){
+    //     buf[i + offset] = big_to_little_endian(buf[i + offset]);
+    // }
+
+    const int button = 27;
+    const int offset = sizeof(wav_header_t) / sizeof(int32_t);
+
+    gpio_set_input(button);
+
+    unsigned last_tap_time = 0;
+    int loc = 0;
+    int file_num = 0;
+
+    printk("Creating new sound file!\n"); 
+
+    char *test_name = "ARN .WAV";
+    test_name[3] = 48 + file_num;
+    printk("Sound file is called ");
+    printk(test_name);
+    printk("\n");
+
     fat32_delete(&fs, &root, test_name);
     assert(fat32_create(&fs, &root, test_name, 0));
 
@@ -61,25 +77,71 @@ void notmain(void) {
     w.data_size = (N * w.channels * w.bits_per_sample) / 8;
 
     memcpy(buf, &w, sizeof(wav_header_t));
+    printk("setup done\n");
+    while (1) {
+        if (gpio_read(button)) {
+            printk("read\n");
+            unsigned start = timer_get_usec();
+            while(1) {
+                buf[loc + offset] = i2s_read_sample();
+                printk("read sample\n");
+                loc++;
+                if (!gpio_read(button)) {
+                    printk("not read\n");
+                    break;
+                }
+            }
+            unsigned end = timer_get_usec();
 
-    pi_file_t test = (pi_file_t) {
-        .data = (char *)buf,
-        .n_data = num_bytes,
-        .n_alloc = num_bytes,
-    };
+            // this is how long the tap was
+            printk("%d\n", end-start);
+
+
+            if (end - last_tap_time < DOUBLE_TAP_THRESHOLD) {
+                printk("double tap!\n");
+                printk("Creating new sound file!\n");
+                file_num++;
+
+                test_name = "ARN .WAV";
+                test_name[3] = 48 + file_num;
+                printk("Sound file is called ");
+                printk(test_name);
+                printk("\n");
+
+                fat32_delete(&fs, &root, test_name);
+                assert(fat32_create(&fs, &root, test_name, 0));
+
+                memcpy(buf, &w, sizeof(wav_header_t));
+                loc = 0;
+            } else {
+                uint32_t num_bytes = (SAMPLE_RATE * (end - start))/1000000;
+                pi_file_t test = (pi_file_t) {
+                    .data = (char *)buf,
+                    .n_data = num_bytes,
+                    .n_alloc = num_bytes,
+                };
+                fat32_extend(&fs, &root, test_name, &test);
+            }
+
+            last_tap_time = timer_get_usec();
+        }
+    }
+
+
+
     // char *te = (char *)buf;
     // for (int i = 0; i < 100; i++) {
     //     printk("%x\n", *(te + i));
     // }
-    assert(fat32_write(&fs, &root, test_name, &test));
-    pi_file_t *read_file_after = fat32_read(&fs, &root, test_name);
-    assert(test.n_data == read_file_after->n_data);
-    for (int i = 0; i < read_file_after->n_data; i++) {
-        //printk("%d\n", i);
-        assert(read_file_after->data[i] == test.data[i]);
-    }
-    printk("passed quivalence\n");
-    printk("Check your SD card for a file called 'TEST.WAV'\n");
+    // assert(fat32_write(&fs, &root, test_name, &test));
+    // pi_file_t *read_file_after = fat32_read(&fs, &root, test_name);
+    // assert(test.n_data == read_file_after->n_data);
+    // for (int i = 0; i < read_file_after->n_data; i++) {
+    //     //printk("%d\n", i);
+    //     assert(read_file_after->data[i] == test.data[i]);
+    // }
+    // printk("passed quivalence\n");
+    // printk("Check your SD card for a file called 'TEST.WAV'\n");
 
     printk("PASS: %s\n", __FILE__);
     clean_reboot();

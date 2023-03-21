@@ -60,6 +60,9 @@ int fat32_truncate(fat32_fs_t *fs, pi_dirent_t *directory, char *filename, unsig
 // file if necessary.
 int fat32_write(fat32_fs_t *fs, pi_dirent_t *directory, char *filename, pi_file_t *file);
 
+// Extend a file on the disk, using the specified directory. 
+int fat32_extend(fat32_fs_t *fs, pi_dirent_t *directory, char *filename, pi_file_t *file);
+
 // Flush any queued changes to the disk.  Will be a no-op if you don't do any
 // caching (i.e., on your first version), but may be useful later if you try to
 // speed things up.
