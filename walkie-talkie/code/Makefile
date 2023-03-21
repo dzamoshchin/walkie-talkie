@@ -1,22 +1,21 @@
-# PROGS = tests/1-i2s-test.c
-# PROGS = tests/2-i2s-dump.c
-# PROGS = tests/3-fat32-write.c
-# PROGS = tests/2-fat32-read.c
+# ===== PLAYING =====
+# PROGS = play_tone.c
+# PROGS = play_wav.c
 
-# PROGS = double_tap.c
-
-# PROGS = send_audio.c
-# PROGS = read_audio.c
-# PROGS = output_audio.c
-# PROGS = play_audio.c
-# PROGS = i2s-write-wav.c
-# PROGS = play.c
-# PROGS = play.c
+# ===== RECEIVE =====
 # PROGS = play_audio_pwm.c
 
-# PROGS = play_wav.c
+# ===== SEND =====
 # PROGS = send_wav.c
 # PROGS = send_mic.c
+
+# ==== OTHER =====
+# PROGS = i2s-write-wav.c
+# PROGS = double_tap.c
+# PROGS = tests/1-i2s-test.c
+# PROGS = tests/2-i2s-dump.c
+# PROGS = tests/2-fat32-read.c
+# PROGS = tests/3-fat32-write.c
 
 LIBS += ./libgcc.a
 
