@@ -7,6 +7,15 @@
 #define SAMPLE_RATE 44100
 #define N (SAMPLE_RATE * SECS)
 
+int32_t big_to_little_endian(int32_t num)
+{
+    int32_t swapped = ((num>>24)&0xff) | // move byte 3 to byte 0
+                        ((num<<8)&0xff0000) | // move byte 1 to byte 2
+                        ((num>>8)&0xff00) | // move byte 2 to byte 1
+                        ((num<<24)&0xff000000); // byte 0 to byte 3
+    return swapped;
+}
+
 void notmain(void) {
     size_t num_bytes = sizeof(wav_header_t) + N * sizeof(int32_t);
     int32_t *buf = (int32_t *)kmalloc(num_bytes);
@@ -16,8 +25,9 @@ void notmain(void) {
 
     unsigned start = timer_get_usec();
     int offset = sizeof(wav_header_t) / sizeof(int32_t);
+    uint32_t curr_read = 0;
     for (int i = 0; i < N; i++) {
-        buf[i + offset] = i2s_read_sample();
+        buf[i + offset] = big_to_little_endian(i2s_read_sample());
     }
     unsigned end = timer_get_usec();
 
@@ -55,19 +65,18 @@ void notmain(void) {
         .n_data = num_bytes,
         .n_alloc = num_bytes,
     };
-    // for (int i = 0; i < 11; i++) {
-    //     printk("%x\n", *(buf + i));
+    // char *te = (char *)buf;
+    // for (int i = 0; i < 100; i++) {
+    //     printk("%x\n", *(te + i));
     // }
-
     assert(fat32_write(&fs, &root, test_name, &test));
     pi_file_t *read_file_after = fat32_read(&fs, &root, test_name);
     assert(test.n_data == read_file_after->n_data);
-    printk("%d", test.n_data);
     for (int i = 0; i < read_file_after->n_data; i++) {
         //printk("%d\n", i);
         assert(read_file_after->data[i] == test.data[i]);
     }
-    printk("passed quivalence");
+    printk("passed quivalence\n");
     printk("Check your SD card for a file called 'TEST.WAV'\n");
 
     printk("PASS: %s\n", __FILE__);
