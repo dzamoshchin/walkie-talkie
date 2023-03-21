@@ -551,15 +551,9 @@ int fat32_truncate(fat32_fs_t *fs, pi_dirent_t *directory, char *filename, unsig
 
 int fat32_extend(fat32_fs_t *fs, pi_dirent_t *directory, char *filename, pi_file_t *file) {
   demand(init_p, "fat32 not initialized!");
-  if (trace_p) trace("truncating %s\n", filename);
+  if (trace_p) trace("extending %s\n", filename);
 
 
-
-  // Edit the directory entry of the file to list its length as `length` bytes.
-  // Modify the cluster chain to either free unused clusters or add new
-  // clusters.
-  // Consider: what if the file we're truncating has length 0? what if we're
-  // truncating to length 0?
   uint32_t dir_n;
   fat32_dirent_t *cur_dirents = get_dirents(fs, directory->cluster_id, &dir_n);
   int found_idx = find_dirent_with_name(cur_dirents, dir_n, filename);
@@ -572,19 +566,26 @@ int fat32_extend(fat32_fs_t *fs, pi_dirent_t *directory, char *filename, pi_file
     return 1;
   }
 
+  printk("this is the nbytes size: %d \n", cur_dirents[found_idx].file_nbytes);
+
   if (cur_dirents[found_idx].file_nbytes == 0) {
     fat32_write(fs, directory, filename, file);
   } else {
     uint32_t curr_cluster = cur_dirents[found_idx].lo_start | cur_dirents[found_idx].hi_start << 16;
     while(fs->fat[curr_cluster] != LAST_CLUSTER) {
+      printk("current cluster %d\n", curr_cluster);
       curr_cluster = fs->fat[curr_cluster];
     }
     uint32_t next_cluster = find_free_cluster(fs, 3);
+    printk("next cluster %d\n", next_cluster);
     fs->fat[curr_cluster] = next_cluster;
     fs->fat[next_cluster] = LAST_CLUSTER;
-    //write_fat_to_disk(fs); what should we do here?
+    write_fat_to_disk(fs);
     write_cluster_chain(fs, next_cluster, file->data, file->n_data);
   }
+
+  //figure out what this should be
+  //cur_dirents[found_idx].file_nbytes = file->n_data;
 
   // Write out the directory entry
   write_cluster_chain(fs, directory->cluster_id, (uint8_t *) cur_dirents, sizeof(fat32_dirent_t) * dir_n);
@@ -623,6 +624,7 @@ int fat32_write(fat32_fs_t *fs, pi_dirent_t *directory, char *filename, pi_file_
   }
 
   cur_dirents[found_idx].file_nbytes = file->n_data;
+  printk("setting size to: %d\n", file->n_data);
 
 
   write_cluster_chain(fs, directory->cluster_id, (uint8_t *) cur_dirents, sizeof(fat32_dirent_t) * dir_n);
