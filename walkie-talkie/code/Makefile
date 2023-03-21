@@ -1,7 +1,7 @@
 # list out the driver program source
 # TEST_SRC = $(wildcard tests/*.c)
 # PROGS = tests/1-i2s-test.c
-PROGS = tests/2-i2s-dump.c
+# PROGS = tests/2-i2s-dump.c
 # TEST_SRC = tests/3-i2s-audiovis.c
 # TEST_SRC = tests/4-fft-test.c
 # TEST_SRC = tests/5-fft-time.c
@@ -15,11 +15,12 @@ PROGS = tests/2-i2s-dump.c
 # PROGS := tests/3-fat32-write.c
 # PROGS += tests/2-fat32-read.c
 # PROGS = i2s-write-wav.c
+PROGS = double_tap.c
 
 LIBS += ./libgcc.a
 
 STAFF_OBJS  +=  ../../libpi/staff-objs/kmalloc.o 
-STAFF_OBJS += $(CS140E_2023_PATH)/libpi/staff-objs/new-spi.o
+STAFF_OBJS += $(WALKIE_PATH)/libpi/staff-objs/new-spi.o
 
 # your source, shared by driver code.
 #   if you want to use our staff-hc-sr04.o,

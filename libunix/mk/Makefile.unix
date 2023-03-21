@@ -6,7 +6,7 @@
 ifdef CS140E_USE_STAFF
     LIBUNIX_PATH := $(CS140E_STAFF_2023_PATH)/libunix
 else
-    LIBUNIX_PATH := $(CS140E_2023_PATH)/libunix
+    LIBUNIX_PATH := $(WALKIE_PATH)/libunix
 endif
 
 PROG_OBJS := $(PROG_SRC:.c=.o)
