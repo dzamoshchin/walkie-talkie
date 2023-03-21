@@ -6,8 +6,8 @@
 
 #define SECS 5
 #define SAMPLE_RATE 44100
-#define N (SAMPLE_RATE * SECS)
-#define DELAY 2
+//#define N (SAMPLE_RATE * SECS)
+#define N 114944 / 2
 #define CLOCK_DIVISOR 5
 #define CYCLES 1024
 #define RIGHTSHIFT (1024/CYCLES - 1)
@@ -45,43 +45,44 @@ static void read_audio(nrf_t *s, nrf_t *client) {
 
     uint32_t sync = 0;
 
-//    nrf_output("waiting for data sync bit...");
-//    while (sync == 0) {
-//        net_get32(client, &sync);
-//    }
-//
-//    nrf_output("Received sync bit! Starting data stream...");
+    uint8_t wav_data[N];
 
-    for(unsigned i = 0; i < N*2; i++) {
+    nrf_output("waiting for data sync bit...\n");
+    while (sync != 1) {
+        net_get32(s, &sync);
+    }
 
+    nrf_output("Received sync bit! Starting data stream...\n");
+    int i = 0;
+    uint32_t x;
+
+    while(i < N && ntimeout < (unsigned)N * 1.2) {
         // receive on client
-        uint32_t x;
         if(net_get32(s, &x)) {
             // we aren't doing acks, so can easily lose packets.  [i.e.,
             // it's not actually an error in the code.]
+            if (i % 1000 == 0) printk("Received sample #%d\n", i);
 
-            printk("DUMP: %u\n", x);
-            int status = pwm_get_status();
-            if(!(status & PWM_FULL1)) {
+            if(x == 0xFFF) break;
 
-//                unsigned wave = swap_int16(x) - INT16_MIN;
-                unsigned wave = abs((int)x - 0xFFFF);
-                uint8_t pcm = wave >> 8;
-                printk("pcm: %x\n", pcm);
-                pwm_write(pcm); // channel 0
-                pwm_write(pcm); // channel 1
-            }
+            wav_data[i] = (uint8_t) (x);
 
-            if(x != i) {
-//                nrf_output("lost/dup packet: received %d (expected=%d)\n", x, i);
-                client->tot_lost++;
-            }
-            npackets++;
-        } else {
-//            nrf_output("receive failed for packet=%d\n", i);
-            ntimeout++;
+            i++;
         }
+        ntimeout++;
     }
+    nrf_output("Received sync bit! Ending data stream...\n");
+//    while(1) {
+    for (unsigned j = 0; j < N; j++) {
+        unsigned status = pwm_get_status();
+        while (status & PWM_FULL1) {
+            status = pwm_get_status();
+        }
+        uint8_t pcm = wav_data[j];
+        pwm_write(pcm); // channel 0
+        pwm_write(pcm); // channel 1
+    }
+//    }
     trace("trial: successfully sent %d no-ack'd pkts, [lost=%d, timeouts=%d]\n",
         npackets, client->tot_lost, ntimeout, ntimeout);
 }
@@ -94,7 +95,7 @@ void notmain(void) {
     nrf_t *s = server_mk_noack(server_addr, nbytes);
     nrf_t *c = client_mk_noack(client_addr, nbytes);
 
-    audio_init(SAMPLE_RATE);
+    audio_init(8000);
 
     // do the test
     read_audio(s, c);
