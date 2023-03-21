@@ -25,11 +25,14 @@ void notmain(void) {
 
     unsigned start = timer_get_usec();
     int offset = sizeof(wav_header_t) / sizeof(int32_t);
-    uint32_t curr_read = 0;
     for (int i = 0; i < N; i++) {
-        buf[i + offset] = big_to_little_endian(i2s_read_sample());
+        buf[i + offset] = i2s_read_sample();
     }
     unsigned end = timer_get_usec();
+
+    for (int i = 0; i < N; i++){
+        buf[i + offset] = big_to_little_endian(buf[i + offset]);
+    }
 
     uart_init();
     kmalloc_init();
