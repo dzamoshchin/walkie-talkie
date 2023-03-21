@@ -1,5 +1,4 @@
 #include "nrf/nrf-test.h"
-#include "pwm/pwm-audio.h"
 
 
 #define SECS 5
