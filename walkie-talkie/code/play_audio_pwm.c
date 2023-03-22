@@ -5,12 +5,9 @@
 
 
 #define SECS 4
-#define SAMPLE_RATE 44100
+#define SAMPLE_RATE 4000
+#define GAIN 8.0
 #define N (SAMPLE_RATE * SECS)
-//#define N
-#define CLOCK_DIVISOR 5
-#define CYCLES 1024
-#define RIGHTSHIFT (1024/CYCLES - 1)
 
 // useful to mess around with these. 
 enum { ntrial = 1000, timeout_usec = 1000 };
@@ -55,6 +52,8 @@ static void read_audio(nrf_t *s, nrf_t *client) {
     nrf_output("Received sync bit! Starting data stream...\n");
     unsigned i = 0;
     uint32_t x;
+    int clock_rate = 19200000 / 2; // 9600000 Hz
+    int range = clock_rate / SAMPLE_RATE ;
 
     while(i < N && ntimeout < (unsigned)N * 1.2) {
         // receive on client
@@ -63,9 +62,15 @@ static void read_audio(nrf_t *s, nrf_t *client) {
             // it's not actually an error in the code.]
             if (x == 0xFFF) break;
 
-            mic_data[i] = (uint8_t) x;
 
-            if (i % 5000 == 0) printk("Received sample #%d\n", i);
+            double dsample = ((double) x - 128) * GAIN + 128;
+            if (dsample > 255.0) {dsample=255.0;}
+            if (dsample < 0.0) {dsample=0.0;}
+
+            mic_data[i] = (uint8_t) (dsample);
+//            printk("%d\n", mic_data[i]);
+
+            if (i % 1000 == 0) printk("Received sample #%d\n", i);
             i++;
         }
         ntimeout++;
