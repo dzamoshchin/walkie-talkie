@@ -143,8 +143,8 @@ typedef enum {
 // #define CM_DIV_INT 6        // integer divider for 19.2 MHz clock
 // #define CM_DIV_FRAC 8027    // fractional divider for 19.2 MHz clock (experimentally determined)
 
-#define CM_DIV_INT 37        // integer divider for 19.2 MHz clock
-#define CM_DIV_FRAC 5    // fractional divider for 19.2 MHz clock (experimentally determined)
+// #define CM_DIV_INT 37        // integer divider for 19.2 MHz clock
+// #define CM_DIV_FRAC 5    // fractional divider for 19.2 MHz clock (experimentally determined)
 
 typedef struct {
     uint32_t other_regs[0x26];  // don't care
@@ -163,9 +163,7 @@ _Static_assert(offsetof(cm_regs_t, pcm_div) == 0x9C, "cm_regs_t pcm_div offset")
 
 
 // initializes the I2S peripheral
-void i2s_init(void);
-void i2s_init_at_rate(int);
-void i2s_init_bit_sample_rate(int bit_rate, int sample_rate);
+void i2s_init(int bit_rate, int sample_rate);
 
 void i2s_enable_rx(void);
 void i2s_enable_tx(void);

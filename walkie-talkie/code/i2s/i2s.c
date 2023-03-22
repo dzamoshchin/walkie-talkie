@@ -1,15 +1,16 @@
 #include "i2s.h"
 
-void i2s_init() {
-    i2s_init_bit_sample_rate(32, 44100);
-}
-
-void i2s_init_at_rate(int bit_rate) {
-    i2s_init_bit_sample_rate(bit_rate, 44100);
-}
-
 // ONLY ACCEPTS 8000 OR 44100 FOR NOW
-void i2s_init_bit_sample_rate(int bit_rate, int sample_rate) {
+void i2s_init(int bit_rate, int sample_rate) {
+
+    if (bit_rate != 8 && bit_rate != 16 && bit_rate != 32) {
+        panic("ERROR: bit rate must be 8, 16, or 32\n");
+        return;
+    } else if (sample_rate != 4000 && sample_rate != 8000 && sample_rate != 44100) {
+        panic("ERROR: sample rate must be 8000 or 44100\n");
+        return;
+    }
+
     // we should have a dev barrier in case we changed devices
     dev_barrier();
 
@@ -26,8 +27,9 @@ void i2s_init_bit_sample_rate(int bit_rate, int sample_rate) {
         PUT32(CM_I2SDIV, CM_PASSWORD | (6 << 12) | 8027);
     } else if (sample_rate == 8000) {
         PUT32(CM_I2SDIV, CM_PASSWORD | (37 << 12) | 5);
+    } else if (sample_rate == 4000) {
+        PUT32(CM_I2SDIV, CM_PASSWORD | (75 << 12) | 0);
     }
-    PUT32(CM_I2SDIV, CM_PASSWORD | (CM_DIV_INT << 12) | CM_DIV_FRAC);
     PUT32(CM_I2SCTL, CM_PASSWORD | GET32(CM_I2SCTL) | (1 << 4));
 
     dev_barrier();

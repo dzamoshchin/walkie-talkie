@@ -7,8 +7,8 @@
 #include "i2s.h"
 #include "pwm.h"
 
-#define SECS 2
-#define SAMPLE_RATE 44100
+#define SECS 5
+#define SAMPLE_RATE 8000
 #define N (SAMPLE_RATE * SECS)
 
 void notmain(void) {
@@ -18,7 +18,7 @@ void notmain(void) {
 
     int16_t *buf = (int16_t *)kmalloc(N * sizeof(int16_t));
 
-    i2s_init_at_rate(16);
+    i2s_init(16, SAMPLE_RATE);
     i2s_enable_rx();
 
     for (int i = 0; i < N; i++) {
