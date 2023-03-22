@@ -465,6 +465,28 @@ pi_dirent_t *fat32_create(fat32_fs_t *fs, pi_dirent_t *directory, char *filename
   return dirent;
 }
 
+int fat32_edit(fat32_fs_t *fs, uint32_t curr_cluster, uint32_t nsec, void* data) {
+    pi_sd_write(data, cluster_to_lba(fs, curr_cluster), nsec);
+    return 1;
+}
+
+int fat32_edit_file_header(fat32_fs_t *fs, pi_dirent_t *directory, char *filename, void *header, unsigned bytes) {
+  uint32_t dir_n;
+  fat32_dirent_t *cur_dirents = get_dirents(fs, directory->cluster_id, &dir_n);
+  int found_idx = find_dirent_with_name(cur_dirents, dir_n, filename);
+  if (found_idx == -1) {
+    if (trace_p) trace("there is no file named %s, nothing to edit.\n", filename);
+    return 0;
+  }
+
+  uint32_t start_cluster = cur_dirents[found_idx].lo_start | (cur_dirents[found_idx].hi_start << 16);
+
+  void *data = pi_sec_read(cluster_to_lba(fs, start_cluster), 1);
+  memcpy(data, header, bytes);
+
+  fat32_edit(fs, start_cluster, 1, data);
+  return 1;
+}
 // Delete a file, including its directory entry.
 int fat32_delete(fat32_fs_t *fs, pi_dirent_t *directory, char *filename) {
   demand(init_p, "fat32 not initialized!");
@@ -625,7 +647,7 @@ int fat32_write(fat32_fs_t *fs, pi_dirent_t *directory, char *filename, pi_file_
     cur_dirents[found_idx].lo_start = ne_free & 0xFFFF;
     cur_dirents[found_idx].hi_start = (ne_free >> 16) & 0xFFFF;
     fs->fat[ne_free] = LAST_CLUSTER;
-    write_fat_to_disk(fs);
+    //write_fat_to_disk(fs); should we do this?
     write_cluster_chain(fs, ne_free, file->data, file->n_data);
   } else {
     write_cluster_chain(fs, cur_dirents[found_idx].lo_start | cur_dirents[found_idx].hi_start << 16, file->data, file->n_data);
