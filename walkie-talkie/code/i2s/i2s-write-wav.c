@@ -6,7 +6,7 @@
 #define SECS 5
 #define SAMPLE_RATE 44100
 #define N (SAMPLE_RATE * SECS)
-#define DOUBLE_TAP_THRESHOLD 400000
+#define DOUBLE_TAP_THRESHOLD 1200000
 
 int32_t big_to_little_endian(int32_t num)
 {
@@ -122,6 +122,7 @@ void notmain(void) {
                     .n_alloc = num_bytes,
                 };
                 fat32_extend(&fs, &root, test_name, &test);
+                loc = 0; 
             }
 
             last_tap_time = timer_get_usec();
