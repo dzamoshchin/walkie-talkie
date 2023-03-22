@@ -140,11 +140,11 @@ typedef enum {
 #define CM_CTRL_MASH3 (3 << 9) // bits 9-10 are MASH control, want 3 stage for best performance
 
 // clock divider: 19.2 MHz / 6.8027 / 64 = 44.1001 KHz
-#define CM_DIV_INT 6        // integer divider for 19.2 MHz clock
-#define CM_DIV_FRAC 8027    // fractional divider for 19.2 MHz clock (experimentally determined)
+// #define CM_DIV_INT 6        // integer divider for 19.2 MHz clock
+// #define CM_DIV_FRAC 8027    // fractional divider for 19.2 MHz clock (experimentally determined)
 
-// #define CM_DIV_INT 37        // integer divider for 19.2 MHz clock
-// #define CM_DIV_FRAC 5    // fractional divider for 19.2 MHz clock (experimentally determined)
+#define CM_DIV_INT 37        // integer divider for 19.2 MHz clock
+#define CM_DIV_FRAC 5    // fractional divider for 19.2 MHz clock (experimentally determined)
 
 typedef struct {
     uint32_t other_regs[0x26];  // don't care
@@ -165,6 +165,7 @@ _Static_assert(offsetof(cm_regs_t, pcm_div) == 0x9C, "cm_regs_t pcm_div offset")
 // initializes the I2S peripheral
 void i2s_init(void);
 void i2s_init_at_rate(int);
+void i2s_init_bit_sample_rate(int bit_rate, int sample_rate);
 
 void i2s_enable_rx(void);
 void i2s_enable_tx(void);

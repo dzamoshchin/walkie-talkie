@@ -1,10 +1,15 @@
 #include "i2s.h"
 
 void i2s_init() {
-    i2s_init_at_rate(32);
+    i2s_init_bit_sample_rate(32, 44100);
 }
 
 void i2s_init_at_rate(int bit_rate) {
+    i2s_init_bit_sample_rate(bit_rate, 44100);
+}
+
+// ONLY ACCEPTS 8000 OR 44100 FOR NOW
+void i2s_init_bit_sample_rate(int bit_rate, int sample_rate) {
     // we should have a dev barrier in case we changed devices
     dev_barrier();
 
@@ -17,7 +22,12 @@ void i2s_init_at_rate(int bit_rate) {
 
     //Step 2: Enable the I2S clock
     PUT32(CM_I2SCTL, CM_PASSWORD | CM_SRC_OSCILLATOR);
-    PUT32(CM_I2SDIV, CM_PASSWORD | (0b110 << 12) | CM_DIV_FRAC);
+    if (sample_rate == 44100) {
+        PUT32(CM_I2SDIV, CM_PASSWORD | (6 << 12) | 8027);
+    } else if (sample_rate == 8000) {
+        PUT32(CM_I2SDIV, CM_PASSWORD | (37 << 12) | 5);
+    }
+    PUT32(CM_I2SDIV, CM_PASSWORD | (CM_DIV_INT << 12) | CM_DIV_FRAC);
     PUT32(CM_I2SCTL, CM_PASSWORD | GET32(CM_I2SCTL) | (1 << 4));
 
     dev_barrier();
