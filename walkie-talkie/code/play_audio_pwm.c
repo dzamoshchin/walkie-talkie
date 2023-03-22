@@ -4,10 +4,10 @@
 #include "pwm/pwm.h"
 
 
-#define SECS 5
+#define SECS 4
 #define SAMPLE_RATE 44100
-//#define N (SAMPLE_RATE * SECS)
-#define N 114944 / 2
+#define N (SAMPLE_RATE * SECS)
+//#define N
 #define CLOCK_DIVISOR 5
 #define CYCLES 1024
 #define RIGHTSHIFT (1024/CYCLES - 1)
@@ -64,9 +64,8 @@ static void read_audio(nrf_t *s, nrf_t *client) {
             if (x == 0xFFF) break;
 
             mic_data[i] = (uint8_t) x;
-            printk("PCM: %x\n", mic_data[i]);
 
-//            if (i % 1000 == 0) printk("Received sample #%d\n", i);
+            if (i % 5000 == 0) printk("Received sample #%d\n", i);
             i++;
         }
         ntimeout++;
