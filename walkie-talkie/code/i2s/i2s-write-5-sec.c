@@ -52,7 +52,7 @@ void notmain(void) {
     pi_dirent_t root = fat32_get_root(&fs);
 
     printk("Creating test.wav\n");
-    char *test_name = "ARN.WAV";
+    char *test_name = "TEST.WAV";
     fat32_delete(&fs, &root, test_name);
     assert(fat32_create(&fs, &root, test_name, 0));
 

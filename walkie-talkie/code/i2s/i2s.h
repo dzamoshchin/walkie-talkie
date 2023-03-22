@@ -141,7 +141,10 @@ typedef enum {
 
 // clock divider: 19.2 MHz / 6.8027 / 64 = 44.1001 KHz
 #define CM_DIV_INT 6        // integer divider for 19.2 MHz clock
-#define CM_DIV_FRAC 3288    // fractional divider for 19.2 MHz clock (experimentally determined)
+#define CM_DIV_FRAC 8027    // fractional divider for 19.2 MHz clock (experimentally determined)
+
+// #define CM_DIV_INT 37        // integer divider for 19.2 MHz clock
+// #define CM_DIV_FRAC 5    // fractional divider for 19.2 MHz clock (experimentally determined)
 
 typedef struct {
     uint32_t other_regs[0x26];  // don't care
