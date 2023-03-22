@@ -45,7 +45,7 @@ static void read_audio(nrf_t *s, nrf_t *client) {
 
     uint32_t sync = 0;
 
-    uint8_t wav_data[N];
+    uint8_t mic_data[N];
 
     nrf_output("waiting for data sync bit...\n");
     while (sync != 1) {
@@ -53,7 +53,7 @@ static void read_audio(nrf_t *s, nrf_t *client) {
     }
 
     nrf_output("Received sync bit! Starting data stream...\n");
-    int i = 0;
+    unsigned i = 0;
     uint32_t x;
 
     while(i < N && ntimeout < (unsigned)N * 1.2) {
@@ -61,28 +61,28 @@ static void read_audio(nrf_t *s, nrf_t *client) {
         if(net_get32(s, &x)) {
             // we aren't doing acks, so can easily lose packets.  [i.e.,
             // it's not actually an error in the code.]
-            if (i % 1000 == 0) printk("Received sample #%d\n", i);
+            if (x == 0xFFF) break;
 
-            if(x == 0xFFF) break;
+            mic_data[i] = (uint8_t) x;
+            printk("PCM: %x\n", mic_data[i]);
 
-            wav_data[i] = (uint8_t) (x);
-
+//            if (i % 1000 == 0) printk("Received sample #%d\n", i);
             i++;
         }
         ntimeout++;
     }
     nrf_output("Received sync bit! Ending data stream...\n");
-//    while(1) {
-    for (unsigned j = 0; j < N; j++) {
+
+    for (unsigned j = 0; j < i; j++) {
         unsigned status = pwm_get_status();
         while (status & PWM_FULL1) {
             status = pwm_get_status();
         }
-        uint8_t pcm = wav_data[j];
+        uint8_t pcm = mic_data[j];
         pwm_write(pcm); // channel 0
         pwm_write(pcm); // channel 1
     }
-//    }
+
     trace("trial: successfully sent %d no-ack'd pkts, [lost=%d, timeouts=%d]\n",
         npackets, client->tot_lost, ntimeout, ntimeout);
 }
@@ -95,7 +95,7 @@ void notmain(void) {
     nrf_t *s = server_mk_noack(server_addr, nbytes);
     nrf_t *c = client_mk_noack(client_addr, nbytes);
 
-    audio_init(8000);
+    audio_init(SAMPLE_RATE);
 
     // do the test
     read_audio(s, c);
