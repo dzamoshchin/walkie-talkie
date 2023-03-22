@@ -6,7 +6,7 @@
 #define SECS 5
 #define SAMPLE_RATE 44100
 #define N (SAMPLE_RATE * SECS)
-#define DOUBLE_TAP_THRESHOLD 400000
+#define DOUBLE_TAP_THRESHOLD 800000
 
 int32_t big_to_little_endian(int32_t num)
 {
@@ -58,7 +58,7 @@ void notmain(void) {
 
     gpio_set_input(button);
 
-    unsigned last_tap_time = 0;
+    //unsigned last_tap_time = 0;
     int loc = 0;
     int file_num = 0;
 
@@ -74,10 +74,10 @@ void notmain(void) {
     assert(fat32_create(&fs, &root, test_name, 0));
 
     INIT_WAV_HEADER(w);
-    w.overall_size = num_bytes - 8;
-    w.data_size = (N * w.channels * w.bits_per_sample) / 8;
+    // w.overall_size = num_bytes - 8;
+    // w.data_size = (N * w.channels * w.bits_per_sample) / 8;
 
-    memcpy(buf, &w, sizeof(wav_header_t));
+    // memcpy(buf, &w, sizeof(wav_header_t));
     printk("setup done\n");
     while (1) {
         if (gpio_read(button)) {
@@ -94,11 +94,27 @@ void notmain(void) {
             unsigned end = timer_get_usec();
 
             // this is how long the tap was
-            printk("%d\n", end-start);
+            printk("This is the button press time %d\n", end-start);
+            //printk("This it the double tap threshold time: %d\n", end - last_tap_time);
 
 
-            if (end - last_tap_time < DOUBLE_TAP_THRESHOLD) {
+            if (end - start < DOUBLE_TAP_THRESHOLD) {
                 printk("double tap!\n");
+                printk("adding information to old file");
+
+                pi_dirent_t *dirent = fat32_stat(&fs, &root, test_name);
+                w.overall_size = dirent->nbytes - 8;
+                w.data_size = ((dirent->nbytes - sizeof(wav_header_t))/sizeof(uint32_t) * w.channels * w.bits_per_sample) / 8;
+
+                printk("Overalll: %d\n", w.overall_size);
+                printk("Data Size: %d\n", w.data_size);
+
+
+                void *header = kmalloc(sizeof(wav_header_t));
+                memcpy(header, &w, sizeof(wav_header_t));
+
+                fat32_edit_file_header(&fs, &root, test_name, header, sizeof(wav_header_t));
+
                 printk("Creating new sound file!\n");
                 file_num++;
 
@@ -114,7 +130,7 @@ void notmain(void) {
                 memcpy(buf, &w, sizeof(wav_header_t));
                 loc = 0;
             } else {
-                uint32_t num_bytes = ((end - start)/10000) * SAMPLE_RATE / 100;
+                uint32_t num_bytes = loc * sizeof(uint32_t);
                 printk("num bytes: %d\n", num_bytes);
                 pi_file_t test = (pi_file_t) {
                     .data = (char *)buf,
@@ -122,9 +138,10 @@ void notmain(void) {
                     .n_alloc = num_bytes,
                 };
                 fat32_extend(&fs, &root, test_name, &test);
+                loc = 0; 
             }
 
-            last_tap_time = timer_get_usec();
+            //last_tap_time = timer_get_usec();
         }
     }
 

@@ -465,6 +465,28 @@ pi_dirent_t *fat32_create(fat32_fs_t *fs, pi_dirent_t *directory, char *filename
   return dirent;
 }
 
+int fat32_edit(fat32_fs_t *fs, uint32_t curr_cluster, uint32_t nsec, void* data) {
+    pi_sd_write(data, cluster_to_lba(fs, curr_cluster), nsec);
+    return 1;
+}
+
+int fat32_edit_file_header(fat32_fs_t *fs, pi_dirent_t *directory, char *filename, void *header, unsigned bytes) {
+  uint32_t dir_n;
+  fat32_dirent_t *cur_dirents = get_dirents(fs, directory->cluster_id, &dir_n);
+  int found_idx = find_dirent_with_name(cur_dirents, dir_n, filename);
+  if (found_idx == -1) {
+    if (trace_p) trace("there is no file named %s, nothing to edit.\n", filename);
+    return 0;
+  }
+
+  uint32_t start_cluster = cur_dirents[found_idx].lo_start | (cur_dirents[found_idx].hi_start << 16);
+
+  void *data = pi_sec_read(cluster_to_lba(fs, start_cluster), 1);
+  memcpy(data, header, bytes);
+
+  fat32_edit(fs, start_cluster, 1, data);
+  return 1;
+}
 // Delete a file, including its directory entry.
 int fat32_delete(fat32_fs_t *fs, pi_dirent_t *directory, char *filename) {
   demand(init_p, "fat32 not initialized!");
@@ -555,6 +577,8 @@ int fat32_extend(fat32_fs_t *fs, pi_dirent_t *directory, char *filename, pi_file
 
 
   uint32_t dir_n;
+  printk("cluster id: %d \n", directory->cluster_id);
+  printk("working2 %x", fs->fat[2]);
   fat32_dirent_t *cur_dirents = get_dirents(fs, directory->cluster_id, &dir_n);
   int found_idx = find_dirent_with_name(cur_dirents, dir_n, filename);
   if (found_idx == -1) {
@@ -567,11 +591,13 @@ int fat32_extend(fat32_fs_t *fs, pi_dirent_t *directory, char *filename, pi_file
   }
 
   printk("this is the nbytes size: %d \n", cur_dirents[found_idx].file_nbytes);
+  printk("this is starting block: %d \n", cur_dirents[found_idx].lo_start | cur_dirents[found_idx].hi_start << 16);
 
   if (cur_dirents[found_idx].file_nbytes == 0) {
     fat32_write(fs, directory, filename, file);
   } else {
     uint32_t curr_cluster = cur_dirents[found_idx].lo_start | cur_dirents[found_idx].hi_start << 16;
+    uint32_t size = file->n_data + get_cluster_chain_length(fs, curr_cluster) * fs->sectors_per_cluster * boot_sector.bytes_per_sec;
     while(fs->fat[curr_cluster] != LAST_CLUSTER) {
       printk("current cluster %d\n", curr_cluster);
       curr_cluster = fs->fat[curr_cluster];
@@ -580,15 +606,19 @@ int fat32_extend(fat32_fs_t *fs, pi_dirent_t *directory, char *filename, pi_file
     printk("next cluster %d\n", next_cluster);
     fs->fat[curr_cluster] = next_cluster;
     fs->fat[next_cluster] = LAST_CLUSTER;
-    write_fat_to_disk(fs);
+    //write_fat_to_disk(fs);
+    printk("working %x", fs->fat[2]);
     write_cluster_chain(fs, next_cluster, file->data, file->n_data);
+    cur_dirents[found_idx].file_nbytes = size;
+    write_cluster_chain(fs, directory->cluster_id, (uint8_t *) cur_dirents, sizeof(fat32_dirent_t) * dir_n);
   }
 
   //figure out what this should be
   //cur_dirents[found_idx].file_nbytes = file->n_data;
 
   // Write out the directory entry
-  write_cluster_chain(fs, directory->cluster_id, (uint8_t *) cur_dirents, sizeof(fat32_dirent_t) * dir_n);
+  //write_cluster_chain(fs, directory->cluster_id, (uint8_t *) cur_dirents, sizeof(fat32_dirent_t) * dir_n);
+
   return 1;
 }
 
@@ -617,7 +647,7 @@ int fat32_write(fat32_fs_t *fs, pi_dirent_t *directory, char *filename, pi_file_
     cur_dirents[found_idx].lo_start = ne_free & 0xFFFF;
     cur_dirents[found_idx].hi_start = (ne_free >> 16) & 0xFFFF;
     fs->fat[ne_free] = LAST_CLUSTER;
-    write_fat_to_disk(fs);
+    //write_fat_to_disk(fs); should we do this?
     write_cluster_chain(fs, ne_free, file->data, file->n_data);
   } else {
     write_cluster_chain(fs, cur_dirents[found_idx].lo_start | cur_dirents[found_idx].hi_start << 16, file->data, file->n_data);
@@ -625,9 +655,11 @@ int fat32_write(fat32_fs_t *fs, pi_dirent_t *directory, char *filename, pi_file_
 
   cur_dirents[found_idx].file_nbytes = file->n_data;
   printk("setting size to: %d\n", file->n_data);
+  printk("size is now: %d\n", cur_dirents[found_idx].file_nbytes);
 
 
   write_cluster_chain(fs, directory->cluster_id, (uint8_t *) cur_dirents, sizeof(fat32_dirent_t) * dir_n);
+
   return 1;
 }
 
