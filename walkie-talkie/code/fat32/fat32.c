@@ -5,10 +5,26 @@
 
 // Print extra tracing info when this is enabled.  You can and should add your
 // own.
-static int trace_p = 1; 
+static int trace_p = 0; 
 static int init_p = 0;
 
 fat32_boot_sec_t boot_sector;
+
+void config_fs(fat32_fs_t *fs, pi_dirent_t *root) {
+    printk("Reading the MBR.\n");
+    mbr_t *mbr = mbr_read();
+
+    printk("Loading the first partition.\n");
+    mbr_partition_ent_t partition;
+    memcpy(&partition, mbr->part_tab1, sizeof(mbr_partition_ent_t));
+    assert(mbr_part_is_fat32(partition.part_type));
+
+    printk("Loading the FAT.\n");
+    *fs = fat32_mk(&partition);
+
+    printk("Loading the root directory.\n");
+    *root = fat32_get_root(fs);
+}
 
 
 fat32_fs_t fat32_mk(mbr_partition_ent_t *partition) {

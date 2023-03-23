@@ -27,6 +27,8 @@ typedef struct fat32 {
 // FAT32 partition.
 fat32_fs_t fat32_mk(mbr_partition_ent_t *partition);
 
+void config_fs(fat32_fs_t *fs, pi_dirent_t *root);
+
 // Create a dirent for the root directory, suitable for passing to
 // fat32_readdir.
 pi_dirent_t fat32_get_root(fat32_fs_t *fs);
