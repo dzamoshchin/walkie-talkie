@@ -88,14 +88,14 @@ static void read_audio(nrf_t *s, nrf_t *client) {
     play_wav(&fs, &root, "MAIL.WAV", 44100);
     
     printk("finished playing mail...\n");
-    set_sample_rate(SAMPLE_RATE);
+    // set_sample_rate(SAMPLE_RATE);
     printk("starting to play message...\n");
-    for (unsigned j = 0; j < i; j++) {
+    for (unsigned j = 0; j < i * 5.5125; j++) {
         unsigned status = pwm_get_status();
         while (status & PWM_FULL1) {
             status = pwm_get_status();
         }
-        uint8_t pcm = mic_data[j];
+        uint8_t pcm = mic_data[(int)(j / 5.5125)];
         pwm_write(pcm); // channel 0
         pwm_write(pcm); // channel 1
     }

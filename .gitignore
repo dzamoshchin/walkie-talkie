@@ -6,3 +6,4 @@
 *.elf
 .vscode
 .idea
+libpi.a

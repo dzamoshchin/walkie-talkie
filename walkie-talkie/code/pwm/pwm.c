@@ -187,9 +187,7 @@ void pwm_set_clock(int freq) {
     PUT32(PWM_CTL, 0);
 
     PUT32(CM_PWMCTL, BM_PASSWORD | source) ;          // turn off clock
-    printk("Before clock change...\n");
     while (GET32(CM_PWMCTL) & CM_BUSY) ;     // wait for clock to stop
-    printk("AFter clock change...\n");
 
 
     PUT32(CM_PWMDIV, BM_PASSWORD | (divisor << 12) | fraction);
