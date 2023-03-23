@@ -21,7 +21,7 @@ void notmain(void) {
     size_t num_bytes = sizeof(wav_header_t) + N * sizeof(int32_t);
     int32_t *buf = (int32_t *)kmalloc(num_bytes);
 
-    i2s_init();
+    i2s_init(32, 44100);
     i2s_enable_rx();
     uart_init();
     kmalloc_init();

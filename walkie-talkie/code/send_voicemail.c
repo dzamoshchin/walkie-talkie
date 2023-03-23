@@ -50,6 +50,7 @@ void notmain ()
     pi_dirent_t root;
     config_fs(&fs, &root);
 
+    printk("Waiting for initial button press...\n");
     while(!gpio_read(button)) ;
 
     delay_ms(50);
@@ -59,8 +60,6 @@ void notmain ()
 
     delay_ms(100);
     printk("playing tone...\n");
-
-
 //    int thisNote;
 //    for (thisNote = 0; thisNote < 8; thisNote++) {
 //        // to calculate the note duration, take one second
