@@ -3,19 +3,19 @@
 #include "../fat32/fat32.h"
 #include "wav.h"
 
-#define SECS 60
-#define SAMPLE_RATE 8000
+#define SECS 5
+#define SAMPLE_RATE 44100
 #define N (SAMPLE_RATE * SECS)
 
 void notmain(void) {
     size_t num_bytes = sizeof(wav_header_t) + N;
-    char *buf = (char *)kmalloc(num_bytes);
+    int8_t *buf = (int8_t *)kmalloc(num_bytes);
 
-    i2s_init_bit_sample_rate(8, 8000);
+    i2s_init(8, SAMPLE_RATE);
     i2s_enable_rx();
 
     unsigned start = timer_get_usec();
-    int offset = sizeof(wav_header_t) / sizeof(int32_t);
+    int offset = sizeof(wav_header_t);
     for (int i = 0; i < N; i++) {
         buf[i + offset] = i2s_read_sample();
     }
@@ -40,13 +40,13 @@ void notmain(void) {
     pi_dirent_t root = fat32_get_root(&fs);
 
     printk("Creating test.wav\n");
-    char *test_name = "MIN.WAV";
+    char *test_name = "MSG.WAV";
     fat32_delete(&fs, &root, test_name);
     assert(fat32_create(&fs, &root, test_name, 0));
 
     INIT_WAV_HEADER(w);
     w.bits_per_sample = 8;
-    w.sample_rate = 8000;
+    w.sample_rate = SAMPLE_RATE;
     w.byterate = w.sample_rate * w.channels * w.bits_per_sample / 8;
     w.block_align = w.channels * w.bits_per_sample / 8;
     w.overall_size = num_bytes - 8;
@@ -71,7 +71,7 @@ void notmain(void) {
         assert(read_file_after->data[i] == test.data[i]);
     }
     printk("passed quivalence\n");
-    printk("Check your SD card for a file called 'TEST.WAV'\n");
+    printk("Check your SD card for a file called 'MSG.WAV'\n");
 
     printk("PASS: %s\n", __FILE__);
     clean_reboot();
