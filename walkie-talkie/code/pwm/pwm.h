@@ -14,6 +14,14 @@
  */
 void pwm_init(void);
 
+
+/*
+ * Assumes we already called audio init, change the sample rate
+ *
+ */
+void set_sample_rate(int sample_rate);
+
+
 void audio_init(int sample_rate);
 
 /*

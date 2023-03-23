@@ -5,9 +5,9 @@
 #include "audio.h"
 #include "fat32.h"
 
-#define SECS 4
-#define SAMPLE_RATE 4000
-#define GAIN 8.0
+#define SECS 5
+#define SAMPLE_RATE 8000
+#define GAIN 4.0
 #define N (SAMPLE_RATE * SECS)
 
 // useful to mess around with these. 

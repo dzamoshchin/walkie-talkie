@@ -11,6 +11,7 @@ PROGS = play_audio_pwm.c
 # ===== SEND =====
 # PROGS = send_wav.c
 # PROGS = send_mic.c
+PROGS = record_send.c
 
 
 # ==== OTHER =====
