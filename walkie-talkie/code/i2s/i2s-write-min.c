@@ -8,16 +8,16 @@
 #define N (SAMPLE_RATE * SECS)
 
 void notmain(void) {
-    size_t num_bytes = sizeof(wav_header_t) + N;
-    int8_t *buf = (int8_t *)kmalloc(num_bytes);
+    size_t num_bytes = sizeof(wav_header_t) + N * sizeof(uint16_t);
+    int16_t *buf = (int16_t *)kmalloc(num_bytes);
 
-    i2s_init(8, SAMPLE_RATE);
+    i2s_init(16, SAMPLE_RATE);
     i2s_enable_rx();
 
     unsigned start = timer_get_usec();
     int offset = sizeof(wav_header_t);
     for (int i = 0; i < N; i++) {
-        buf[i + offset] = i2s_read_sample();
+        buf[i + offset] = ((i2s_read_sample() & 0xFFFF));
     }
     unsigned end = timer_get_usec();
 
@@ -45,12 +45,12 @@ void notmain(void) {
     assert(fat32_create(&fs, &root, test_name, 0));
 
     INIT_WAV_HEADER(w);
-    w.bits_per_sample = 8;
+    w.bits_per_sample = 16;
     w.sample_rate = SAMPLE_RATE;
-    w.byterate = w.sample_rate * w.channels * w.bits_per_sample / 8;
-    w.block_align = w.channels * w.bits_per_sample / 8;
+    w.byterate = w.sample_rate * w.channels * w.bits_per_sample / 16;
+    w.block_align = w.channels * w.bits_per_sample / 16;
     w.overall_size = num_bytes - 8;
-    w.data_size = (N * w.channels * w.bits_per_sample) / 8;
+    w.data_size = (N * w.channels * w.bits_per_sample) / 16;
 
     memcpy(buf, &w, sizeof(wav_header_t));
 
