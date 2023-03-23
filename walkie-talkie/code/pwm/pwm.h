@@ -2,6 +2,11 @@
 #define PWM_H
 
 /*
+ * generate a square wave with the given frequency.
+ */
+void play_tone(int freq);
+
+/*
  * Hardware abstractions for pulse width modulation (PWM) of
  * digital signals.
  *

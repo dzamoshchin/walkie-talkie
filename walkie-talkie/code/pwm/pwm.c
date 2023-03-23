@@ -4,6 +4,8 @@
 // Nominal clock frequencies
 #define F_OSC   19200000
 #define F_PLLD 500000000
+#define F_AUDIO 1000000
+
 
 #define BM_PASSWORD 0x5A000000
 
@@ -49,6 +51,43 @@
 
 #define PWM_CLEARFIFO    (1 << 6)
 
+
+
+/*
+ * this version is fragile. because divisor is 12-bits
+ * we need to change the pwm clock depending on the input
+ * frequency.
+ */
+void play_tone(int freq) {
+    if (freq == 0) {
+        pwm_disable(0);
+        pwm_disable(1);
+        return;
+    }
+
+    // Assumes pwm init and gpio pin setup
+
+    pwm_set_clock( F_AUDIO);
+    delay_ms(2);
+
+    pwm_set_mode(0, PWM_MARKSPACE); // PWM0, MARKSPACE
+    pwm_set_mode(1, PWM_MARKSPACE); // PWM1, MARKSPACE
+
+    pwm_enable(0);
+    pwm_enable(1);
+
+    // assumes pwm_clock(F_AUDIO)
+    int divisor = F_AUDIO / freq;
+    int divisor2 = divisor / 2;
+
+    pwm_set_range(0,  divisor);
+    pwm_set_width(0,  divisor2);
+
+    pwm_set_range(1,  divisor);
+    pwm_set_width(1,  divisor2);
+
+}
+
 void pwm_init(void)
 {
     //pwm_set_clock( F_OSC );
@@ -61,6 +100,7 @@ void pwm_init(void)
 void set_sample_rate(int sample_rate) {
     pwm_disable(0);
     pwm_disable(1);
+    pwm_clear_fifo();
 
     int clock_rate = 19200000 / 2; // 9600000 Hz
     int range = clock_rate / sample_rate;
@@ -162,8 +202,11 @@ void pwm_set_clock(int freq) {
     // turn off pwm before changing the clock
     PUT32(PWM_CTL, 0);
 
-    PUT32(CM_PWMCTL, BM_PASSWORD) ;          // turn off clock
+    PUT32(CM_PWMCTL, BM_PASSWORD | 0x01) ;          // turn off clock
+    printk("Before clock change...\n");
     while (GET32(CM_PWMCTL) & CM_BUSY) ;     // wait for clock to stop
+    printk("AFter clock change...\n");
+
 
     PUT32(CM_PWMDIV, BM_PASSWORD | (divisor << 12) | fraction);
 
@@ -271,3 +314,4 @@ unsigned pwm_get_status(void) {
 void pwm_write(int value) {
     PUT32(PWM_FIFO, value);
 }
+
