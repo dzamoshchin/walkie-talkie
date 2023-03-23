@@ -101,25 +101,9 @@ void set_sample_rate(int sample_rate) {
     pwm_disable(0);
     pwm_disable(1);
     pwm_clear_fifo();
-
-    int clock_rate = 19200000 / 2; // 9600000 Hz
-    int range = clock_rate / sample_rate;
-    pwm_set_clock( clock_rate);
     delay_ms(2);
 
-    pwm_set_mode( 0, PWM_SIGMADELTA );
-    pwm_set_mode( 1, PWM_SIGMADELTA );
-
-    pwm_set_fifo(0, 1);
-    pwm_set_fifo(1, 1);
-
-    pwm_enable(0);
-    pwm_enable(1);
-
-    // pwm range is 1024 cycles
-    pwm_set_range(0, range);
-    pwm_set_range(1, range);
-    delay_ms(2);
+    audio_init(sample_rate);
 
 }
 
@@ -202,7 +186,7 @@ void pwm_set_clock(int freq) {
     // turn off pwm before changing the clock
     PUT32(PWM_CTL, 0);
 
-    PUT32(CM_PWMCTL, BM_PASSWORD | 0x01) ;          // turn off clock
+    PUT32(CM_PWMCTL, BM_PASSWORD | source) ;          // turn off clock
     printk("Before clock change...\n");
     while (GET32(CM_PWMCTL) & CM_BUSY) ;     // wait for clock to stop
     printk("AFter clock change...\n");

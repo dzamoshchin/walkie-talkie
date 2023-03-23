@@ -1,11 +1,10 @@
 #include "rpi.h"
 #include "pwm.h"
 #include "fat32.h"
-#include "wav.h"
+#include "WAV.h"
 
 
 void play_wav(fat32_fs_t* fs, pi_dirent_t* root, char* filename, int sample_rate) {
-    pwm_init();
     audio_init(sample_rate);
 
     pi_file_t *file = fat32_read(fs, root, filename);
