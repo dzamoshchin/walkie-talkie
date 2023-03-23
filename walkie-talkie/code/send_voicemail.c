@@ -12,6 +12,22 @@
 #define BIT_RATE 16
 #define N (SAMPLE_RATE * SECS)
 
+// notes in the melody:
+int melody[] = {
+        NOTE_C4,
+        NOTE_G3,
+        NOTE_G3,
+        NOTE_A3,
+        NOTE_G3,
+        0,
+        NOTE_B3,
+        NOTE_C4
+};
+
+// note durations: 4 = quarter note, 8 = eighth note, etc.:
+int noteDurations[] = { 4, 8, 8, 4, 4, 4, 4, 4 };
+
+
 static void net_put32(nrf_t *nic, uint32_t txaddr, uint32_t x) {
     int ret = nrf_send_noack(nic, txaddr, &x, 4);
 }
@@ -34,18 +50,38 @@ void notmain ()
     pi_dirent_t root;
     config_fs(&fs, &root);
 
+    while(!gpio_read(button)) ;
+
+    delay_ms(50);
     printk("Playing query message...\n");
     play_wav(&fs, &root, "MSG.WAV", 44100);
     printk("done playing\n");
 
     delay_ms(100);
     printk("playing tone...\n");
-    for(int a = 0; a < 200; a++) {
-        play_tone(NOTE_A6);
-        delay_ms(1);
-        play_tone(0);
-        delay_ms(1);
-    }
+
+
+//    int thisNote;
+//    for (thisNote = 0; thisNote < 8; thisNote++) {
+//        // to calculate the note duration, take one second
+//        // divided by the note type.
+//        //e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
+//        int noteDuration = 1000/noteDurations[thisNote];
+//        play_tone(melody[thisNote]);
+//        delay_ms(noteDuration);
+//
+//        // to distinguish the notes, set a minimum time between them.
+//        // the note's duration + 30% seems to work well:
+//        int pauseBetweenNotes = noteDuration * 0.30;
+//        play_tone(0); // 0 turns off sound
+//        delay_ms(pauseBetweenNotes);
+//    }
+//    play_tone(NOTE_G5);
+    delay_ms(150);
+    play_tone(NOTE_C6);
+    delay_ms(150);
+    play_tone(NOTE_F6);
+    delay_ms(120);
 
     set_sample_rate(SAMPLE_RATE);
 
@@ -62,12 +98,13 @@ void notmain ()
     nrf_t *s = server_mk_noack(server_addr, 4);
     nrf_t *c = client_mk_noack(client_addr, 4);
 
-    // Transmitting message...
+    printk("transmitting...\n");
     net_put32(c, s->rxaddr, 1);
     for (unsigned sample = 0; sample < i + 1; sample++) {
-        uint8_t pcm = buf[sample] >> 8;
-        net_put32(c, server_addr, pcm);
+        net_put32(c, server_addr, buf[sample]);
     }
-    net_put32(c, s->rxaddr, 0xFFF);
+    net_put32(c, s->rxaddr, 0xFFFFF);
+    printk("finished transmit\n");
+
 
 }

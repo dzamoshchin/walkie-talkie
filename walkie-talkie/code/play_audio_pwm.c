@@ -8,7 +8,6 @@
 
 #define SECS 15
 #define SAMPLE_RATE 8000
-#define GAIN 8.0
 #define N (SAMPLE_RATE * SECS)
 
 // useful to mess around with these. 
@@ -51,7 +50,7 @@ static void read_audio(nrf_t *s, nrf_t *client) {
 
     uint32_t sync = 0;
 
-    uint8_t mic_data[N];
+    int16_t mic_data[N];
 
     gpio_set_output(27);
     gpio_set_on(27);
@@ -74,14 +73,9 @@ static void read_audio(nrf_t *s, nrf_t *client) {
         if(net_get32(s, &x)) {
             // we aren't doing acks, so can easily lose packets.  [i.e.,
             // it's not actually an error in the code.]
-            if (x == 0xFFF) break;
+            if (x == 0xFFFFF) break;
 
-
-            double dsample = ((double) x - 128) * GAIN + 128;
-            if (dsample > 255.0) {dsample=255.0;}
-            if (dsample < 0.0) {dsample=0.0;}
-
-            mic_data[i] = (uint8_t) (dsample);
+            mic_data[i] = (int16_t) (x);
 //            printk("%d\n", mic_data[i]);
 
             if (i % 1000 == 0) printk("Received sample #%d\n", i);
@@ -101,7 +95,7 @@ static void read_audio(nrf_t *s, nrf_t *client) {
         while (status & PWM_FULL1) {
             status = pwm_get_status();
         }
-        uint8_t pcm = mic_data[(int)(j / 5.5125)];
+        uint8_t pcm = mic_data[(int)(j / 5.5125)] >> 8;
         pwm_write(pcm); // channel 0
         pwm_write(pcm); // channel 1
     }

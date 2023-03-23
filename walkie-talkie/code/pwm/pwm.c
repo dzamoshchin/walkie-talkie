@@ -80,7 +80,7 @@ void play_tone(int freq) {
 
     // assumes pwm_clock(F_AUDIO)
     int divisor = F_AUDIO / freq;
-    int divisor2 = divisor / 2;
+    int divisor2 = divisor / 4;
 
     pwm_set_range(0,  divisor);
     pwm_set_width(0,  divisor2);
