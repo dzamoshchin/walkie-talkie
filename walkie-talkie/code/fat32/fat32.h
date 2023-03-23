@@ -2,6 +2,7 @@
 #define __RPI_FAT32_H__
 #include "mbr.h"
 #include "pi-files.h"
+#include "fat32-helpers.h"
 
 /*
  * Aggregate the FAT32 information.  Refer to Paul's writeup for
@@ -70,6 +71,9 @@ int fat32_edit(fat32_fs_t *fs, uint32_t curr_cluster, uint32_t nsec, void* data)
 int fat32_edit_file_header(fat32_fs_t *fs, pi_dirent_t *directory, char *filename, void *header, unsigned bytes);
 
 
+fat32_dirent_t *get_dirents(fat32_fs_t *fs, uint32_t cluster_start, uint32_t *dir_n);
+
+int find_dirent_with_name(fat32_dirent_t *dirents, int n, char *filename);
 // Flush any queued changes to the disk.  Will be a no-op if you don't do any
 // caching (i.e., on your first version), but may be useful later if you try to
 // speed things up.

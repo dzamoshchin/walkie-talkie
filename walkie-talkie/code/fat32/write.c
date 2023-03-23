@@ -1,7 +1,8 @@
+#include "rpi.h"
 #include "WAV.h"
 #include "fat32.h"
 
-void write_wav(fat32_fs_t* fs, pi_dirent_t* root, int16_t* buf, char* filename, int sample_rate) {
+void write_wav(fat32_fs_t* fs, pi_dirent_t* root, int16_t* buf, char* filename, int sample_rate, int num_bytes, int N) {
 
     fat32_delete(fs, root, filename);
     assert(fat32_create(fs, root, filename, 0));
@@ -22,12 +23,7 @@ void write_wav(fat32_fs_t* fs, pi_dirent_t* root, int16_t* buf, char* filename, 
         .n_alloc = num_bytes,
     };
 
-    assert(fat32_write(&fs, &root, test_name, &test));
-    pi_file_t *read_file_after = fat32_read(&fs, &root, test_name);
-    assert(test.n_data == read_file_after->n_data);
-    for (int i = 0; i < read_file_after->n_data; i++) {
-        assert(read_file_after->data[i] == test.data[i]);
-    }
+    assert(fat32_write(fs, root, filename, &test));
     printk("PASS: %s\n", __FILE__);
 
 }
