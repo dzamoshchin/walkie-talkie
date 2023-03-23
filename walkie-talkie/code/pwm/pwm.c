@@ -70,11 +70,13 @@ void play_tone(int freq) {
     pwm_set_clock( F_AUDIO);
     delay_ms(2);
 
-    pwm_set_mode(0, PWM_MARKSPACE); // PWM0, MARKSPACE
-    pwm_set_mode(1, PWM_MARKSPACE); // PWM1, MARKSPACE
+    pwm_set_mode( 0, PWM_MARKSPACE);
+    pwm_set_fifo( 0, 0 );
+    pwm_enable( 0 );
 
-    pwm_enable(0);
-    pwm_enable(1);
+    pwm_set_mode( 1, PWM_MARKSPACE);
+    pwm_set_fifo( 1, 0 );
+    pwm_enable( 1 );
 
     // assumes pwm_clock(F_AUDIO)
     int divisor = F_AUDIO / freq;
@@ -188,7 +190,6 @@ void pwm_set_clock(int freq) {
 
     PUT32(CM_PWMCTL, BM_PASSWORD | source) ;          // turn off clock
     while (GET32(CM_PWMCTL) & CM_BUSY) ;     // wait for clock to stop
-
 
     PUT32(CM_PWMDIV, BM_PASSWORD | (divisor << 12) | fraction);
 

@@ -6,13 +6,13 @@
 # PROGS = send_wav_i2s.c
 
 # ===== RECEIVE =====
-PROGS = play_audio_pwm.c
+#PROGS = play_audio_pwm.c
 
 # ===== SEND =====
 # PROGS = send_wav.c
 # PROGS = send_mic.c
-PROGS = record_send.c
-
+#PROGS = record_send.c
+PROGS = send_voicemail.c
 
 # ==== OTHER =====
 # PROGS = i2s-write-wav.c
