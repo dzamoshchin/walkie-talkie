@@ -83,6 +83,11 @@ void i2s_enable_rx() {
     PUT32(I2S_CS, GET32(I2S_CS) | (1 << I2S_CS_RXON));
 }
 
+void i2s_disable_rx() {
+    dev_barrier();
+    PUT32(I2S_CS, GET32(I2S_CS) & ~(1 << I2S_CS_RXON));
+}
+
 void i2s_enable_tx() {
     dev_barrier();
     PUT32(I2S_CS, GET32(I2S_CS) & ~(1 << I2S_CS_RXON));

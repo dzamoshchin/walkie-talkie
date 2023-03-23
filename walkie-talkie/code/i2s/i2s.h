@@ -166,7 +166,9 @@ _Static_assert(offsetof(cm_regs_t, pcm_div) == 0x9C, "cm_regs_t pcm_div offset")
 void i2s_init(int bit_rate, int sample_rate);
 
 void i2s_enable_rx(void);
+void i2s_disable_rx(void);
 void i2s_enable_tx(void);
+void i2s_disable_tx(void);
 
 // reads a sample from the I2S peripheral
 int32_t i2s_read_sample(void);
