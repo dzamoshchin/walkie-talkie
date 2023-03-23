@@ -2,7 +2,7 @@
 #include "nrf/nrf-test.h"
 #include "rpi.h"
 #include "pwm/pwm.h"
-
+#include "play_wav.h"
 
 #define SECS 4
 #define SAMPLE_RATE 4000
@@ -76,6 +76,8 @@ static void read_audio(nrf_t *s, nrf_t *client) {
         ntimeout++;
     }
     nrf_output("Received sync bit! Ending data stream...\n");
+
+    play_wav("MAIL.wav");
 
     for (unsigned j = 0; j < i; j++) {
         unsigned status = pwm_get_status();

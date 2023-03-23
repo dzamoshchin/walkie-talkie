@@ -21,8 +21,7 @@ void config_fs(fat32_fs_t *fs, pi_dirent_t *root) {
     *root = fat32_get_root(fs);
 }
 
-void notmain ()
-{
+void play_wav(char* filename) {
     kmalloc_init();
     pi_sd_init();
 
@@ -33,7 +32,7 @@ void notmain ()
     pwm_init();
     audio_init(SAMPLE_RATE);
 
-    pi_file_t *file = fat32_read(&fs, &root, "RICK.WAV");
+    pi_file_t *file = fat32_read(&fs, &root, filename);
 
     file->data = file->data + sizeof(wav_header_t);
 
@@ -52,3 +51,8 @@ void notmain ()
     }
     printk("done playing\n");
 }
+
+
+// void notmain() {
+//     play_wav("MAIL.WAV");
+// }
