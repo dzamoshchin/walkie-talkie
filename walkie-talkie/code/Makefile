@@ -2,13 +2,15 @@
 # PROGS = play_tone.c
 # PROGS = play_wav.c
 # PROGS = record_play.c
+# PROGS = test_audio_i2s.c
+PROGS = send_wav_i2s.c
 
 # ===== RECEIVE =====
 # PROGS = play_audio_pwm.c
 
 # ===== SEND =====
 # PROGS = send_wav.c
-PROGS = send_mic.c
+# PROGS = send_mic.c
 
 
 # ==== OTHER =====
