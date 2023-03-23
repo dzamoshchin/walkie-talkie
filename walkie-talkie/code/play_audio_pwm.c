@@ -4,6 +4,7 @@
 #include "pwm/pwm.h"
 #include "audio.h"
 #include "fat32.h"
+#include "write.h"
 
 #define SECS 15
 #define SAMPLE_RATE 8000
@@ -52,10 +53,15 @@ static void read_audio(nrf_t *s, nrf_t *client) {
 
     uint8_t mic_data[N];
 
+    gpio_set_output(27);
+    gpio_set_on(27);
+
     nrf_output("waiting for data sync bit...\n");
     while (sync != 1) {
         net_get32(s, &sync);
     }
+
+    gpio_set_off(27);
 
     nrf_output("Received sync bit! Starting data stream...\n");
     unsigned i = 0;
@@ -99,6 +105,10 @@ static void read_audio(nrf_t *s, nrf_t *client) {
         pwm_write(pcm); // channel 0
         pwm_write(pcm); // channel 1
     }
+
+    write_wav(&fs, &root, mic_data, "REC.WAV", 8000);
+
+    play_wav(&fs, &root, "PLAY.WAV", 44100);
 
     trace("trial: successfully sent %d no-ack'd pkts, [lost=%d, timeouts=%d]\n",
         npackets, client->tot_lost, ntimeout, ntimeout);
