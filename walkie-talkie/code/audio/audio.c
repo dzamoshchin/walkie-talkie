@@ -6,7 +6,11 @@
 #define GAIN 8.0
 
 void play_wav(fat32_fs_t* fs, pi_dirent_t* root, char* filename, int sample_rate) {
-    audio_init(sample_rate);
+    if (sample_rate == 8000) {
+        audio_init(44100);
+    } else {
+        audio_init(sample_rate);
+    }
 
     pi_file_t *file = fat32_read(fs, root, filename);
 
