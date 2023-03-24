@@ -86,8 +86,13 @@ void notmain ()
     unsigned i = 0;
     printk("started recording.\n");
     while(i < N) {
+//        double dsample = ((double) i2s_read_sample()) * GAIN;
+//        if (dsample > 32767.0) dsample = 32767.0;
+//        if (dsample < -32767.0) dsample = -32767.0;
+//        buf[i] = (int16_t) dsample;
+
         buf[i] = (int16_t) i2s_read_sample();
-        printk("%x\n", buf[i]);
+//        printk("%x\n", buf[i]);
         if (gpio_read(button))
             break;
         i++;

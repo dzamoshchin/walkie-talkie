@@ -9,6 +9,7 @@
 #include "write.h"
 #include "WAV.h"
 
+#define GAIN 8.0
 #define SECS 15
 #define SAMPLE_RATE 8000
 #define N (SAMPLE_RATE * SECS)
@@ -94,11 +95,15 @@ static void read_audio(nrf_t *s, nrf_t *client) {
     // set_sample_rate(SAMPLE_RATE);
     printk("starting to play message...\n");
     for (unsigned j = 0; j < i * 5.5125; j++) {
+        uint8_t val = (mic_data[(int)(j / 5.5125)] + 0x8000) >> 8;
+        double dsample = ((double) val - 128) * GAIN + 128;
+        if (dsample > 255.0) dsample = 255.0;
+        if (dsample < 0.0) dsample = 0.0;
         unsigned status = pwm_get_status();
         while (status & PWM_FULL1) {
             status = pwm_get_status();
         }
-        uint8_t pcm = (mic_data[(int)(j / 5.5125)] + 0x8000) >> 8;
+        uint8_t pcm = (uint8_t) dsample;
         pwm_write(pcm); // channel 0
         pwm_write(pcm); // channel 1
     }
