@@ -37,6 +37,7 @@ void notmain ()
 
     i2s_init(BIT_RATE, SAMPLE_RATE);
     i2s_enable_rx();
+    audio_init(44100);
 
     int16_t *buf = (int16_t *)kmalloc(N * sizeof(int16_t));
 
@@ -53,7 +54,7 @@ void notmain ()
     printk("Waiting for initial button press...\n");
     while(!gpio_read(button)) ;
 
-    delay_ms(50);
+    delay_ms(200);
     printk("Playing query message...\n");
     play_wav(&fs, &root, "MSG.WAV", 44100);
     printk("done playing\n");
@@ -75,8 +76,6 @@ void notmain ()
 //        play_tone(0); // 0 turns off sound
 //        delay_ms(pauseBetweenNotes);
 //    }
-//    play_tone(NOTE_G5);
-    delay_ms(150);
     play_tone(NOTE_C6);
     delay_ms(150);
     play_tone(NOTE_F6);
@@ -87,7 +86,8 @@ void notmain ()
     unsigned i = 0;
     printk("started recording.\n");
     while(i < N) {
-        buf[i] = (int16_t) i2s_read_sample() + 0x8000;
+        buf[i] = (int16_t) i2s_read_sample();
+        printk("%x\n", buf[i]);
         if (gpio_read(button))
             break;
         i++;

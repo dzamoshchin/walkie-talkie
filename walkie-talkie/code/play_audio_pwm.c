@@ -89,7 +89,7 @@ static void read_audio(nrf_t *s, nrf_t *client) {
         while (status & PWM_FULL1) {
             status = pwm_get_status();
         }
-        uint8_t pcm = mic_data[(int)(j / 5.5125)] >> 8;
+        uint8_t pcm = (mic_data[(int)(j / 5.5125)] + 0x8000) >> 8;
         pwm_write(pcm); // channel 0
         pwm_write(pcm); // channel 1
     }
