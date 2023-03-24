@@ -167,7 +167,7 @@ static pi_dirent_t dirent_convert(fat32_dirent_t *d) {
 
 // Gets all the dirents of a directory which starts at cluster `cluster_start`.
 // Return a heap-allocated array of dirents.
-static fat32_dirent_t *get_dirents(fat32_fs_t *fs, uint32_t cluster_start, uint32_t *dir_n) {
+fat32_dirent_t *get_dirents(fat32_fs_t *fs, uint32_t cluster_start, uint32_t *dir_n) {
   // TODO: figure out the length of the cluster chain (see
   // `get_cluster_chain_length`)
 
@@ -212,7 +212,7 @@ pi_directory_t fat32_readdir(fat32_fs_t *fs, pi_dirent_t *dirent) {
   };
 }
 
-static int find_dirent_with_name(fat32_dirent_t *dirents, int n, char *filename) {
+int find_dirent_with_name(fat32_dirent_t *dirents, int n, char *filename) {
   // Iterate through the dirents, looking for a file which matches the
   // name; use `fat32_dirent_name` to convert the internal name format to a
   // normal string.

@@ -4,6 +4,10 @@
 #include "pwm/pwm.h"
 #include "audio.h"
 #include "fat32.h"
+#include "fat32-helpers.h"
+#include "pi-sd.h"
+#include "write.h"
+#include "WAV.h"
 
 #define SECS 15
 #define SAMPLE_RATE 8000
@@ -51,10 +55,15 @@ static void read_audio(nrf_t *s, nrf_t *client) {
 
     int16_t mic_data[N];
 
+    gpio_set_output(27);
+    gpio_set_on(27);
+
     nrf_output("waiting for data sync bit...\n");
     while (sync != 1) {
         net_get32(s, &sync);
     }
+
+    gpio_set_off(27);
 
     nrf_output("Received sync bit! Starting data stream...\n");
     unsigned i = 0;
@@ -94,8 +103,41 @@ static void read_audio(nrf_t *s, nrf_t *client) {
         pwm_write(pcm); // channel 1
     }
 
-    trace("trial: successfully sent %d no-ack'd pkts, [lost=%d, timeouts=%d]\n",
-        npackets, client->tot_lost, ntimeout, ntimeout);
+    uint32_t dir_n;
+    fat32_dirent_t *cur_dirents = get_dirents(&fs, root.cluster_id, &dir_n);
+
+    for (int j = 0; j<10; j++) {
+        char *test_name = "REC .WAV";
+        test_name[3] = 48 + j;
+        //only works if there are less than 10 recordings in the directory
+        if (find_dirent_with_name(cur_dirents, dir_n, test_name) == -1) {
+            write_wav(&fs, &root, mic_data, test_name, 8000, sizeof(wav_header_t) + i * sizeof(int16_t), i);
+            break;
+        }
+    }
+
+    play_wav(&fs, &root, "PLAY.WAV", 44100);
+
+    int button = 17;
+    gpio_set_output(button);
+
+    unsigned start = timer_get_usec();
+    while (timer_get_usec() - start < 5000000) {
+        if (gpio_read(button)) {
+            for (int j = 0; j<10; j++) {
+                char *test_name = "REC .WAV";
+                test_name[3] = 48 + j;
+                //only works if there are less than 10 recordings in the directory
+                if (find_dirent_with_name(cur_dirents, dir_n, test_name) == -1) {
+                    play_wav(&fs, &root, "RICK.WAV", 44100);
+                    break;
+                } else {
+                    play_wav(&fs, &root, test_name, 8000);
+                }
+            }
+            break;
+        }
+    }
 }
 
 
