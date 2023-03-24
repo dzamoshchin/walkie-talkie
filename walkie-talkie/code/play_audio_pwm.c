@@ -116,6 +116,8 @@ static void read_audio(nrf_t *s, nrf_t *client) {
         }
     }
 
+    cur_dirents = get_dirents(&fs, root.cluster_id, &dir_n);
+
     play_wav(&fs, &root, "PLAY.WAV", 44100);
 
     int button = 17;
